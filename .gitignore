@@ -14,3 +14,7 @@ gen/
 
 # Local configuration file (sdk path, etc)
 local.properties
+/android_scrum_support/bin
+/android_scrum_support/gen
+/android_scrum_support/bin
+/android_scrum_support/gen
