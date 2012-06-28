@@ -1,8 +1,17 @@
 package scrum.support.services;
 
-import scrum.support.model.User;
+import java.util.Collections;
+import java.util.List;
 
+import scrum.support.model.User;
+import scrum.support.model.Project;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.google.resting.component.impl.ServiceResponse;
+import com.google.resting.json.JSONArray;
 import com.google.resting.json.JSONException;
 import com.google.resting.json.JSONObject;
 
@@ -23,6 +32,7 @@ public class ContentProvider {
 	private RESTService rest;
 	
 	private User user;
+	private List<Project> projects;
 	
 	private enum RequestType {
 		User,
@@ -57,38 +67,71 @@ public class ContentProvider {
 	 */
 	public boolean validateUser(User user) {
 		
-		ServiceResponse response;
-		JSONObject json = new JSONObject();
+		ServiceResponse response = rest.getUserLink();
+			// Get the user url
+		String userLink = jsonStringHelper(response, "user");
 		
-		response = (user.needToRegistered()) ? rest.registerUser(user) : rest.authenicateUser(user);
+		response = (user.needToRegistered()) ? rest.registerUser(user, userLink) : 
+											   rest.authenicateUser(user, userLink);
+		
+			// Checks for a valid response
 		if(invalid(RequestType.User, response.getStatusCode())) return false;
 
 		this.user = user;
-		try {
-			json = new JSONObject(response.getResponseString());
-			user.setToken((String) json.get("auth_token"));
-			
-				// If the user has just registered, then they won't have any accounts, 
-				// just return true so the next activity can start.
-			if(user.needToRegistered()) return true;
-			
-			JSONObject link = (JSONObject) json.get("link");
-			return getProjects((String) link.get("accounts"));
-		} catch (JSONException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}		
-		return false;
+			// Get the auth token from the JSON reply
+		user.setToken(jsonStringHelper(response, "auth_token"));
+		
+			// If the user has just registered, then they won't have any accounts, 
+			// just return true so the next activity can start.
+		if(user.needToRegistered()) return true;
+		
+			// Else get the account link and all of the relevant projects
+		String accountLink = jsonStringHelper(response, "links", "projects");
+		return updateProjects(accountLink);
+	}
+	
+	public List<Project> getProjects() {
+		return Collections.unmodifiableList(projects);
 	}
 
 	/**
 	 * A method to get all of the projects for the user
-	 * @param accountLink
+	 * @param REST response to get the relevant links from
 	 * @return
 	 */
-	private boolean getProjects(String accountLink) {
-		// TODO Auto-generated method stub
+	private boolean updateProjects(String link) {
+		projects = rest.getProjects(user.getToken(), link);
+		
+		/*JsonArray jsonProjects = jsonArrayHelper(response, "projects");
+		for(int i = 0; i < jsonProjects.size(); i++) {
+			JsonObject json = jsonProjects.get(i).getAsJsonObject();
+		}*/
+		
+		
 		return false;
+	}
+	
+	/**
+	 * A simple helper method to put out json Strings
+	 * @param response
+	 * @param params
+	 * @return
+	 */
+	private String jsonStringHelper(ServiceResponse response, String...params) {
+		JsonElement json = new JsonParser().parse(response.getResponseString());
+    	for(int i = 0; i < params.length; i++) {
+    		json = json.getAsJsonObject().get(params[0]);
+    	}		
+		return json.getAsString();
+		
+	}
+	
+	private JsonArray jsonArrayHelper(ServiceResponse response, String...params) {
+		JsonElement json = new JsonParser().parse(response.getResponseString());
+    	for(int i = 0; i < params.length; i++) {
+    		json = json.getAsJsonObject().get(params[0]);
+    	}		
+		return json.getAsJsonArray();
 	}
 	
 	private boolean invalid(RequestType type, int status) {

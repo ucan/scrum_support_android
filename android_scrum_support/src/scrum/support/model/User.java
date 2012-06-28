@@ -11,7 +11,7 @@ public class User {
 	private String email;
 	private String password_confirmation;
 	private boolean register;
-	private String token;
+	private Token token;
 	
 	/**
 	 * Constructor
@@ -42,7 +42,11 @@ public class User {
 	}
 
 	public void setToken(String token) {
-		this.token = token;
+		this.token = new Token(token);
+	}
+
+	public Token getToken() {
+		return token;
 	}
 
 }
