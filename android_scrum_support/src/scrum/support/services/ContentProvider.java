@@ -13,13 +13,13 @@ import com.google.resting.json.JSONObject;
  * @author Dave W
  *
  */
-public class ContentService {
+public class ContentProvider {
 	
 	private final static int CONFLICT = 409;
 	private final static int BAD_REQUEST = 400;
 	private final static int UNAUTHORIZED = 401;
 	
-	private static ContentService instance = null;
+	private static ContentProvider instance = null;
 	private RESTService rest;
 	
 	private User user;
@@ -35,7 +35,7 @@ public class ContentService {
 	 * Singleton Service the manage the interactions between the 
 	 * REST requests / responses and the UI Activities.
 	 */
-	private ContentService() {
+	private ContentProvider() {
 		rest = new RESTService();
 	}
 	
@@ -43,9 +43,9 @@ public class ContentService {
 	 *
 	 * @return the singleton instance of the service.
 	 */
-	public static ContentService getInstance() {
+	public static ContentProvider getInstance() {
 		if(instance == null) {
-			instance = new ContentService();
+			instance = new ContentProvider();
 		}
 		return instance;
 	}

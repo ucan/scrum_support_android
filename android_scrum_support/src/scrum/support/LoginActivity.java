@@ -1,7 +1,7 @@
 package scrum.support;
 
 import scrum.support.model.User;
-import scrum.support.services.ContentService;
+import scrum.support.services.ContentProvider;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -76,7 +76,7 @@ public class LoginActivity extends Activity {
 		@Override
 		protected Boolean doInBackground(User... params) {
 			if(params.length == 1) {
-				return ContentService.getInstance().validateUser(params[0]);
+				return ContentProvider.getInstance().validateUser(params[0]);
 			}
 			return false;
 		}

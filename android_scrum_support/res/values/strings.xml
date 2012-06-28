@@ -2,6 +2,10 @@
 <resources>
 
     <string name="hello">Hello World, Login!</string>
-    <string name="app_name">android_scrum_support</string>
+    <string name="app_name">Your Scrum Support</string>
+    <string name="usernameText">user</string>
+    <string name="passwordText">password</string>
+    <string name="loginText">Login</string>
+    <string name="registerText">Register</string>
 
 </resources>
