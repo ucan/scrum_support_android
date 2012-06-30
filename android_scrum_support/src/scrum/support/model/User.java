@@ -23,11 +23,10 @@ public class User {
 		this.email = email;
 		this.password = password;
 		this.register = register;
-		
-		this.password_confirmation = password; // TODO
+		this.password_confirmation = password; //TODO: FIX ME!!!
 	}
 	
-	public String getUsername() {
+	public String getEmail() {
 		return email;
 	}
 	
@@ -39,7 +38,7 @@ public class User {
 		return password_confirmation;
 	}
 	
-	public boolean needToRegistered() {
+	public boolean needsToRegister() {
 		return register;
 	}
 
@@ -50,5 +49,4 @@ public class User {
 	public Token getToken() {
 		return token;
 	}
-
 }

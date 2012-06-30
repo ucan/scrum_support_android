@@ -3,7 +3,9 @@ package scrum.support.services;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.http.Header;
 import org.apache.http.HeaderElement;
@@ -12,8 +14,12 @@ import org.apache.http.ParseException;
 import scrum.support.model.Project;
 import scrum.support.model.Token;
 import scrum.support.model.User;
+
 import android.util.Log;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.google.resting.Resting;
 import com.google.resting.component.EncodingTypes;
 import com.google.resting.component.RequestParams;
@@ -23,19 +29,54 @@ import com.google.resting.component.impl.ServiceResponse;
 
 public class RESTService {
 	
-	private static URL baseURL;
+	private URL baseURL;
+	private int port;
+	
+	Map<Link, String> links;
+	
+	private enum Link {
+		USER("user"),
+		ACCOUNTS("accounts"),
+		PROJECTS("projects"),
+		STORIES("stories"),
+		TASKS("tasks");
+		
+		private String link;
+		
+		private Link(String link) {
+			this.link = link;
+		}
+		
+		public String toString() {
+			return link;
+		}
+	}
 	
 	protected RESTService() {
 		try {
-			baseURL = new URL("http://10.32.4.60/");
+			baseURL = new URL("http://132.181.15.56/");
+			port = 3000;
+			links = new HashMap<Link, String>();
+			updateLinks();
 		} catch (MalformedURLException e) {
 			e.printStackTrace();
 		}		
 	}
 	
-	public ServiceResponse getUserLink() {
-		RequestParams params = new BasicRequestParams(); 	
-		return Resting.get(baseURL.toString(), 3000, params);			
+	public boolean updateLinks() {
+		RequestParams params = new BasicRequestParams();
+		ServiceResponse response = Resting.get(baseURL.toString(), port, params);
+		JsonElement json = new JsonParser().parse(response.getResponseString());
+		JsonObject jLinks = json.getAsJsonObject().getAsJsonObject("links");
+		for (Link link : Link.values()) {
+			if (jLinks.has(link.toString())) {
+				links.put(link, jLinks.get(link.toString()).getAsString());
+			}
+			else {
+				return false; // TODO: Should raise error!
+			}
+		}
+		return true;
 	}
 	
 	/**
@@ -43,11 +84,11 @@ public class RESTService {
 	 * @param user
 	 * @return
 	 */
-	public ServiceResponse authenicateUser(User user, String subUrl) {	
-		RequestParams params = new BasicRequestParams(); 	
-		params.add("email", user.getUsername());	
+	public ServiceResponse authenicateUser(User user) {
+		RequestParams params = new BasicRequestParams();
+		params.add("email", user.getEmail());
 		params.add("password", user.getPassword());	
-		return Resting.get(makeUrl(subUrl), 3000, params);	
+		return Resting.get(makeUrl(Link.USER), port, params);
 	}
 	
 	/**
@@ -55,15 +96,12 @@ public class RESTService {
 	 * @param user
 	 * @return
 	 */
-	public ServiceResponse registerUser(User user, String subUrl) {
-		RequestParams params = new BasicRequestParams(); 	
-		params.add("email", user.getUsername());	// TODO service requires an email!
-		params.add("password", user.getPassword());	
+	public ServiceResponse registerUser(User user) {
+		RequestParams params = new BasicRequestParams();
+		params.add("email", user.getEmail());
+		params.add("password", user.getPassword());
 		params.add("password_confirmation", user.getConfirmedPassword());
-		
-		Log.v("url", makeUrl(subUrl));
-		
-		return Resting.post(makeUrl(subUrl), 3000, params);	
+		return Resting.post(makeUrl(Link.USER), port, params);
 	}
 
 	/**
@@ -72,15 +110,27 @@ public class RESTService {
 	 * @param subUrl
 	 * @return
 	 * 
-	 * 
 	 *  Returns JsonArray of Projects - {id: <id>, title: <title>} 
 	 */
-	public List<Project> getProjects(Token token, String subUrl) {
-//		RequestParams params = new BasicRequestParams(); 	
-//		params.add("auth_token", token.toString());	
+	public List<Project> getProjects(Token token) {
+		RequestParams params = new BasicRequestParams();
 		List<Header> headers = new ArrayList<Header>();
-		headers.add(new TokenAuthorizationHeader(token.toString()));
-		return Resting.getByJSON(makeUrl(subUrl), 3000, null, Project.class, "projects", EncodingTypes.UTF8, headers);
+		headers.add(new TokenAuthorizationHeader(token));
+		return Resting.getByJSON(makeUrl(Link.PROJECTS), port, params, Project.class, "projects", EncodingTypes.UTF8, headers);
+	}
+	
+	/**
+	 * Get all of the members and stories of a project
+	 * @param token
+	 * @param projectId
+	 * @return
+	 */
+	public List<Project> getProject(Integer projectId, Token token) {
+		RequestParams params = new BasicRequestParams();
+		params.add("id", projectId.toString());
+		List<Header> headers = new ArrayList<Header>();
+		headers.add(new TokenAuthorizationHeader(token));
+		return Resting.getByJSON(makeUrl(Link.PROJECTS), port, params, Project.class, "projects", EncodingTypes.UTF8, headers);
 	}
 	
 	/**
@@ -88,10 +138,10 @@ public class RESTService {
 	 * @param subUrl
 	 * @return
 	 */
-	private String makeUrl(String subUrl) {
+	private String makeUrl(Link link) {
 		URL url = baseURL;
 		try {
-			url = new URL(baseURL, subUrl);
+			url = new URL(baseURL, links.get(link));
 		} catch (MalformedURLException e) {
 			e.printStackTrace();
 		}
@@ -99,24 +149,26 @@ public class RESTService {
 	}
 	
 	private class TokenAuthorizationHeader implements Header {
-		
-		private static final String NAME = "Authorization";
-		private String value;
-		
-		public TokenAuthorizationHeader(String value) {
-			this.value = "Token token=" + value;
-		}
 
+		Token token;
+		
+		public TokenAuthorizationHeader(Token token) {
+			this.token = token;
+		}
+		
 		public HeaderElement[] getElements() throws ParseException {
 			return new HeaderElement[]{};
 		}
 
 		public String getName() {
-			return NAME;
+			return "Authorization";
 		}
 
 		public String getValue() {
-			return value;
+			return "Token token=" + token.toString();
 		}
+		
 	}
 }
+
+

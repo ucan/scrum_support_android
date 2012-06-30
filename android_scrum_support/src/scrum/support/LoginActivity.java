@@ -59,14 +59,14 @@ public class LoginActivity extends Activity {
 	private void authUser(boolean registerUser) {
 		String username = ((EditText) findViewById(R.id.usernameField)).getText().toString();
     	String password = ((EditText) findViewById(R.id.passwordField)).getText().toString();
-    	new AuthenicateUser().execute(new User(username, password, registerUser)); // TODO changed 'true' to registerUser
+    	new AuthenticateUser().execute(new User(username, password, registerUser));
 	}
 	
 	/**
 	 * A worker thread to manage the authenticate and network activity
 	 *
 	 */
-	private class AuthenicateUser extends AsyncTask<User, Integer, Boolean> {
+	private class AuthenticateUser extends AsyncTask<User, Integer, Boolean> {
 		
 		@Override
 		protected void onPreExecute() {
@@ -90,7 +90,7 @@ public class LoginActivity extends Activity {
 	    		 
     	 		final AlertDialog alertDialog = new AlertDialog.Builder(activity).create();
 				alertDialog.setTitle("Authenticaton");
-				alertDialog.setMessage("Authenticated Failed.");
+				alertDialog.setMessage("Authentication Failed.");
 				alertDialog.setButton("OK", new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int which) {
 						alertDialog.dismiss();

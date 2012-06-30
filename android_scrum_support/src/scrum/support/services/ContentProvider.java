@@ -1,7 +1,5 @@
 package scrum.support.services;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import scrum.support.model.Project;
@@ -10,6 +8,7 @@ import android.util.Log;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.resting.component.impl.ServiceResponse;
 
@@ -22,6 +21,8 @@ import com.google.resting.component.impl.ServiceResponse;
  */
 public class ContentProvider {
 	
+	private final static int OK = 200;
+	private final static int CREATED = 201;
 	private final static int CONFLICT = 409;
 	private final static int BAD_REQUEST = 400;
 	private final static int UNAUTHORIZED = 401;
@@ -30,7 +31,6 @@ public class ContentProvider {
 	private RESTService rest;
 	
 	private User user;
-	private List<Project> projects;
 	
 	private enum RequestType {
 		User,
@@ -45,7 +45,6 @@ public class ContentProvider {
 	 */
 	private ContentProvider() {
 		rest = new RESTService();
-		projects = new ArrayList<Project>();
 	}
 	
 	/**
@@ -65,49 +64,37 @@ public class ContentProvider {
 	 * @return true if the user was created or successfully authenticated.
 	 */
 	public boolean validateUser(User user) {
+		boolean valid = false;
+		ServiceResponse response;
 		
-		ServiceResponse response = rest.getUserLink();
-			// Get the user url
-		String userLink = jsonStringHelper(response, "links", "user");
+		if (user.needsToRegister()) {
+			response = rest.registerUser(user);
+			if (response.getStatusCode() == CREATED) {
+				valid = true;
+			}
+			else {
+				Log.e("USER", "Failed to register user: " + response.getContentData());
+			}
+		}
+		else {
+			response = rest.authenicateUser(user);
+			if (response.getStatusCode() == OK) {
+				valid = true;
+			}
+			else {
+				Log.e("USER", "Failed to authenticate user: " + response.getContentData());
+			}
+		}
 		
-		response = (user.needToRegistered()) ? rest.registerUser(user, userLink) : 
-											   rest.authenicateUser(user, userLink);
-		
-			// Checks for a valid response
-		if(invalid(RequestType.User, response.getStatusCode())) return false;
-
-		this.user = user;
-			// Get the auth token from the JSON reply
-		user.setToken(jsonStringHelper(response, "user", "auth_token"));
-		
-			// If the user has just registered, then they won't have any accounts, 
-			// just return true so the next activity can start.
-		if(user.needToRegistered()) return true;
-		
-			// Else get the account link and all of the relevant projects
-		String accountLink = jsonStringHelper(response, "links", "projects");
-		return updateProjects(accountLink);
+		if (valid) {
+			this.user = user;
+			user.setToken(jsonStringHelper(response, "user", "auth_token"));
+		}
+		return valid;
 	}
 	
 	public List<Project> getProjects() {
-		return Collections.unmodifiableList(projects);
-	}
-
-	/**
-	 * A method to get all of the projects for the user
-	 * @param REST response to get the relevant links from
-	 * @return
-	 */
-	private boolean updateProjects(String link) {
-		projects = rest.getProjects(user.getToken(), link);
-		
-		/*JsonArray jsonProjects = jsonArrayHelper(response, "projects");
-		for(int i = 0; i < jsonProjects.size(); i++) {
-			JsonObject json = jsonProjects.get(i).getAsJsonObject();
-		}*/
-		
-		
-		return false;
+		return rest.getProjects(user.getToken());
 	}
 	
 	/**
@@ -118,8 +105,8 @@ public class ContentProvider {
 	 */
 	private String jsonStringHelper(ServiceResponse response, String...params) {
 		JsonElement json = new JsonParser().parse(response.getResponseString());
-    	for(int i = 0; i < params.length; i++) {
-    		json = json.getAsJsonObject().get(params[i]);
+		for(String s : params) {
+    		json = json.getAsJsonObject().get(s);
     	}		
 		return json.getAsString();
 		
@@ -134,7 +121,6 @@ public class ContentProvider {
 	}
 	
 	private boolean invalid(RequestType type, int status) {
-		Log.d("invalid", type.name() + " " + status);
 		switch(type) {
 			case User : 
 				return status == CONFLICT ||
