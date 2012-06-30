@@ -57,9 +57,9 @@ public class LoginActivity extends Activity {
      * @param registerUser
      */
 	private void authUser(boolean registerUser) {
-		String username = ((EditText) findViewById(R.id.usernameField)).toString();
-    	String password = ((EditText) findViewById(R.id.passwordField)).toString();
-    	new AuthenicateUser().execute(new User(username, password, true));
+		String username = ((EditText) findViewById(R.id.usernameField)).getText().toString();
+    	String password = ((EditText) findViewById(R.id.passwordField)).getText().toString();
+    	new AuthenicateUser().execute(new User(username, password, registerUser)); // TODO changed 'true' to registerUser
 	}
 	
 	/**
@@ -70,7 +70,7 @@ public class LoginActivity extends Activity {
 		
 		@Override
 		protected void onPreExecute() {
-	    	 pd = ProgressDialog.show(activity, "Authenicating..", "Authenicating...", true, false);			
+	    	 pd = ProgressDialog.show(activity, "Authenticating..", "Authenticating...", true, false);
 		}
 
 		@Override
@@ -89,8 +89,8 @@ public class LoginActivity extends Activity {
 	    	 } else {
 	    		 
     	 		final AlertDialog alertDialog = new AlertDialog.Builder(activity).create();
-				alertDialog.setTitle("Authenicaton");
-				alertDialog.setMessage("Authenicated Failed.");
+				alertDialog.setTitle("Authenticaton");
+				alertDialog.setMessage("Authenticated Failed.");
 				alertDialog.setButton("OK", new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int which) {
 						alertDialog.dismiss();

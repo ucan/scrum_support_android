@@ -23,6 +23,8 @@ public class User {
 		this.email = email;
 		this.password = password;
 		this.register = register;
+		
+		this.password_confirmation = password; // TODO
 	}
 	
 	public String getUsername() {
@@ -33,7 +35,7 @@ public class User {
 		return password;
 	}
 	
-	public String getConfirmedPassowrd() {
+	public String getConfirmedPassword() {
 		return password_confirmation;
 	}
 	

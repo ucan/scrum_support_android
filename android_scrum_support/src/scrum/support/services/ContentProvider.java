@@ -1,19 +1,17 @@
 package scrum.support.services;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import scrum.support.model.User;
 import scrum.support.model.Project;
+import scrum.support.model.User;
+import android.util.Log;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.resting.component.impl.ServiceResponse;
-import com.google.resting.json.JSONArray;
-import com.google.resting.json.JSONException;
-import com.google.resting.json.JSONObject;
 
 /**
  * Singleton Service the manage the interactions between the 
@@ -47,6 +45,7 @@ public class ContentProvider {
 	 */
 	private ContentProvider() {
 		rest = new RESTService();
+		projects = new ArrayList<Project>();
 	}
 	
 	/**
@@ -69,7 +68,7 @@ public class ContentProvider {
 		
 		ServiceResponse response = rest.getUserLink();
 			// Get the user url
-		String userLink = jsonStringHelper(response, "user");
+		String userLink = jsonStringHelper(response, "links", "user");
 		
 		response = (user.needToRegistered()) ? rest.registerUser(user, userLink) : 
 											   rest.authenicateUser(user, userLink);
@@ -79,7 +78,7 @@ public class ContentProvider {
 
 		this.user = user;
 			// Get the auth token from the JSON reply
-		user.setToken(jsonStringHelper(response, "auth_token"));
+		user.setToken(jsonStringHelper(response, "user", "auth_token"));
 		
 			// If the user has just registered, then they won't have any accounts, 
 			// just return true so the next activity can start.
@@ -120,7 +119,7 @@ public class ContentProvider {
 	private String jsonStringHelper(ServiceResponse response, String...params) {
 		JsonElement json = new JsonParser().parse(response.getResponseString());
     	for(int i = 0; i < params.length; i++) {
-    		json = json.getAsJsonObject().get(params[0]);
+    		json = json.getAsJsonObject().get(params[i]);
     	}		
 		return json.getAsString();
 		
@@ -135,6 +134,7 @@ public class ContentProvider {
 	}
 	
 	private boolean invalid(RequestType type, int status) {
+		Log.d("invalid", type.name() + " " + status);
 		switch(type) {
 			case User : 
 				return status == CONFLICT ||

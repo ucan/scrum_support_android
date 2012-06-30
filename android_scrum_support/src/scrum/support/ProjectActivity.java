@@ -44,6 +44,7 @@ public class ProjectActivity extends ListActivity {
 
         // WIP
         ListAdapter mAdapter = new ProjectListAdapter(this, 0, 0, projects);
+        setListAdapter(mAdapter);
 
     }
 }
