@@ -1,11 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="hello">Hello World, Login!</string>
     <string name="app_name">Your Scrum Support</string>
     <string name="usernameText">user</string>
     <string name="passwordText">password</string>
     <string name="loginText">Login</string>
     <string name="registerText">Register</string>
+    <string name="serverAddress">Server Address</string>
+    <string name="confirmPassLbl">Confirm Password</string>
 
+    <string name="error_connection">Unable to connect to the Scrum Support Server.</string>
+    <string name="error_json_parse">Unable to parse the JSON service message.</string>
 </resources>

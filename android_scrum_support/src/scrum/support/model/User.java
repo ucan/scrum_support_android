@@ -10,7 +10,6 @@ public class User {
 	private String password;
 	private String email;
 	private String password_confirmation;
-	private boolean register;
 	private Token token;
 	
 	/**
@@ -19,10 +18,9 @@ public class User {
 	 * @param password
 	 * @param register
 	 */
-	public User(String email, String password, boolean register) {
+	public User(String email, String password) {
 		this.email = email;
 		this.password = password;
-		this.register = register;
 		this.password_confirmation = password; //TODO: FIX ME!!!
 	}
 	
@@ -39,7 +37,7 @@ public class User {
 	}
 	
 	public boolean needsToRegister() {
-		return register;
+		return password_confirmation.length() > 0;
 	}
 
 	public void setToken(String token) {
@@ -48,5 +46,9 @@ public class User {
 
 	public Token getToken() {
 		return token;
+	}
+
+	public void confirmPass(String confirmPass) {
+		password_confirmation = confirmPass;		
 	}
 }

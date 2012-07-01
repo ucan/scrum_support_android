@@ -65,6 +65,34 @@
         android:layout_alignBottom="@+id/loginButton"
         android:layout_alignLeft="@+id/title"
         android:layout_marginLeft="14dp"
-        android:text="@string/registerText" />
+        android:text="@string/registerText" /> 
+    
+    <TextView 
+        android:id="@+id/serverAddressLbl"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="360dp"
+        android:text="@string/serverAddress" />
+    
+    <EditText
+        android:id="@+id/serverField"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignRight="@+id/title"
+        android:layout_below="@+id/serverAddressLbl"
+        android:layout_alignLeft="@+id/passwordField"
+        android:layout_marginTop="14dp"
+        android:ems="10"/>
+
+    <Button
+        android:id="@+id/serverOkButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/serverAddressLbl"
+        android:layout_alignRight="@+id/serverAddressLbl"
+        android:layout_below="@+id/serverField"
+        android:text="@android:string/ok"/>
 
 </RelativeLayout>

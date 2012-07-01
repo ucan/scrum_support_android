@@ -1,6 +1,7 @@
 package scrum.support.services;
 
 import java.net.MalformedURLException;
+import java.net.SocketException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -11,10 +12,12 @@ import org.apache.http.Header;
 import org.apache.http.HeaderElement;
 import org.apache.http.ParseException;
 
+import scrum.support.R;
 import scrum.support.model.Project;
 import scrum.support.model.Token;
 import scrum.support.model.User;
 
+import android.content.Context;
 import android.util.Log;
 
 import com.google.gson.JsonElement;
@@ -29,10 +32,11 @@ import com.google.resting.component.impl.ServiceResponse;
 
 public class RESTService {
 	
-	private URL baseURL;
 	private int port;
 	
 	Map<Link, String> links;
+
+	private Context context;
 	
 	private enum Link {
 		USER("user"),
@@ -52,20 +56,23 @@ public class RESTService {
 		}
 	}
 	
-	protected RESTService() {
-		try {
-			baseURL = new URL("http://132.181.15.56/");
-			port = 3000;
-			links = new HashMap<Link, String>();
-			updateLinks();
-		} catch (MalformedURLException e) {
-			e.printStackTrace();
-		}		
+	protected RESTService(Context context) {
+		port = 3000;
+		links = new HashMap<Link, String>();
+		updateLinks();
+		this.context = context;
 	}
 	
 	public boolean updateLinks() {
 		RequestParams params = new BasicRequestParams();
-		ServiceResponse response = Resting.get(baseURL.toString(), port, params);
+		ServiceResponse response = Resting.get(
+				ContentProvider.getInstance().getServerAddress().toString(), port, params);
+		if(response == null) {
+			ErrorService.getInstance().raiseError(
+					new Error(context.getString(R.string.error_connection)));
+			Log.e("REST LINKS", "The REST Server was unavailable");
+			return false;
+		}
 		JsonElement json = new JsonParser().parse(response.getResponseString());
 		JsonObject jLinks = json.getAsJsonObject().getAsJsonObject("links");
 		for (Link link : Link.values()) {
@@ -73,7 +80,9 @@ public class RESTService {
 				links.put(link, jLinks.get(link.toString()).getAsString());
 			}
 			else {
-				return false; // TODO: Should raise error!
+				ErrorService.getInstance().raiseError(
+						new Error(context.getString(R.string.error_json_parse)));
+				return false; // TODO: Should raise error! Done?
 			}
 		}
 		return true;
@@ -88,7 +97,15 @@ public class RESTService {
 		RequestParams params = new BasicRequestParams();
 		params.add("email", user.getEmail());
 		params.add("password", user.getPassword());	
-		return Resting.get(makeUrl(Link.USER), port, params);
+		ServiceResponse response = Resting.get(makeUrl(Link.USER), port, params);
+		
+		if(response == null) {
+			ErrorService.getInstance().raiseError(
+					new Error(context.getString(R.string.error_connection)));
+			Log.e("USER", "The REST Server was unavailable");
+			return null;
+		}
+		return response;
 	}
 	
 	/**
@@ -101,7 +118,14 @@ public class RESTService {
 		params.add("email", user.getEmail());
 		params.add("password", user.getPassword());
 		params.add("password_confirmation", user.getConfirmedPassword());
-		return Resting.post(makeUrl(Link.USER), port, params);
+		ServiceResponse response = Resting.post(makeUrl(Link.USER), port, params);
+		if(response == null) {
+			ErrorService.getInstance().raiseError(
+					new Error(context.getString(R.string.error_connection)));
+			Log.e("USER", "The REST Server was unavailable");
+			return null;
+		}
+		return response;
 	}
 
 	/**
@@ -116,7 +140,17 @@ public class RESTService {
 		RequestParams params = new BasicRequestParams();
 		List<Header> headers = new ArrayList<Header>();
 		headers.add(new TokenAuthorizationHeader(token));
-		return Resting.getByJSON(makeUrl(Link.PROJECTS), port, params, Project.class, "projects", EncodingTypes.UTF8, headers);
+		List<Project> response = Resting.getByJSON(
+				makeUrl(Link.PROJECTS), port, params, Project.class, "projects", EncodingTypes.UTF8, headers);
+		
+		if(response == null) {
+			ErrorService.getInstance().raiseError(
+					new Error(context.getString(R.string.error_connection)));
+			Log.e("PROJECTS", "The REST Server was unavailable");
+			return null;
+		}
+		return response;
+		
 	}
 	
 	/**
@@ -125,12 +159,21 @@ public class RESTService {
 	 * @param projectId
 	 * @return
 	 */
-	public List<Project> getProject(Integer projectId, Token token) {
+	public List<Project> getProject(Integer projectId, Token token) throws SocketException {
 		RequestParams params = new BasicRequestParams();
 		params.add("id", projectId.toString());
 		List<Header> headers = new ArrayList<Header>();
 		headers.add(new TokenAuthorizationHeader(token));
-		return Resting.getByJSON(makeUrl(Link.PROJECTS), port, params, Project.class, "projects", EncodingTypes.UTF8, headers);
+		List<Project> response = Resting.getByJSON(
+				makeUrl(Link.PROJECTS), port, params, Project.class, "projects", EncodingTypes.UTF8, headers);
+		
+		if(response == null) {
+			ErrorService.getInstance().raiseError(
+					new Error(context.getString(R.string.error_connection)));
+			Log.e("PROJECTS", "The REST Server was unavailable");
+			return null;
+		}
+		return response;
 	}
 	
 	/**
@@ -139,9 +182,9 @@ public class RESTService {
 	 * @return
 	 */
 	private String makeUrl(Link link) {
-		URL url = baseURL;
+		URL url = ContentProvider.getInstance().getServerAddress();
 		try {
-			url = new URL(baseURL, links.get(link));
+			url = new URL(url, links.get(link));
 		} catch (MalformedURLException e) {
 			e.printStackTrace();
 		}

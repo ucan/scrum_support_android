@@ -1,14 +1,16 @@
 package scrum.support.services;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.List;
 
+import scrum.support.R;
 import scrum.support.model.Project;
 import scrum.support.model.User;
+import android.content.Context;
 import android.util.Log;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.resting.component.impl.ServiceResponse;
 
@@ -31,20 +33,19 @@ public class ContentProvider {
 	private RESTService rest;
 	
 	private User user;
-	
-	private enum RequestType {
-		User,
-		Project,
-		Story,
-		Task
-	}
+	private Context context;
+	private URL baseURL;
 	
 	/**
 	 * Singleton Service the manage the interactions between the 
 	 * REST requests / responses and the UI Activities.
 	 */
 	private ContentProvider() {
-		rest = new RESTService();
+		try {
+			baseURL =  new URL("http://132.181.15.56/");
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	/**
@@ -64,6 +65,7 @@ public class ContentProvider {
 	 * @return true if the user was created or successfully authenticated.
 	 */
 	public boolean validateUser(User user) {
+		rest = new RESTService(context);
 		boolean valid = false;
 		ServiceResponse response;
 		
@@ -93,6 +95,14 @@ public class ContentProvider {
 		return valid;
 	}
 	
+	public URL getServerAddress() {
+		return baseURL;
+	}
+
+	public void updateServer(String address) throws MalformedURLException {
+		baseURL = new URL(address);		
+	}	
+	
 	public List<Project> getProjects() {
 		return rest.getProjects(user.getToken());
 	}
@@ -111,23 +121,8 @@ public class ContentProvider {
 		return json.getAsString();
 		
 	}
-	
-	private JsonArray jsonArrayHelper(ServiceResponse response, String...params) {
-		JsonElement json = new JsonParser().parse(response.getResponseString());
-    	for(int i = 0; i < params.length; i++) {
-    		json = json.getAsJsonObject().get(params[0]);
-    	}		
-		return json.getAsJsonArray();
+
+	public void setContext(Context applicationContext) {
+		context = applicationContext;
 	}
-	
-	private boolean invalid(RequestType type, int status) {
-		switch(type) {
-			case User : 
-				return status == CONFLICT ||
-						status == BAD_REQUEST ||
-						status == UNAUTHORIZED;			
-		}
-		return false;
-	}
-	
 }
