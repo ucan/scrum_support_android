@@ -16,6 +16,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ArrayAdapter;
@@ -33,21 +34,23 @@ public class ProjectActivity extends ListActivity implements Observer {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState); 
-        setContentView(R.layout.add_token);
         activity = this;
     	ErrorService.getInstance().addObserver(this);
         projects = ContentProvider.getInstance().getProjects();
         
         setListAdapter(new ArrayAdapter<Project>(this, android.R.layout.simple_list_item_1, projects));
-        
-        tokenAddButton = (Button) findViewById(R.id.addTokenBtn);
-        tokenAddButton.setOnClickListener(new OnClickListener() {
-
-			public void onClick(View arg0) {
-            	Intent confirmIntent = new Intent(activity, NewAccountActivity.class);
-            	activity.startActivityForResult(confirmIntent, NEW_TOKEN);				
-			}        	
-        });    
+   
+    }
+    
+    /**
+     * When the menu button is used the server related buttons will
+     * toggle visible and invisible.
+     */
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+    	Intent confirmIntent = new Intent(activity, NewAccountActivity.class);
+    	activity.startActivityForResult(confirmIntent, NEW_TOKEN);	
+    	return true;
     }
     
 
