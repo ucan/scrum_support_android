@@ -78,17 +78,14 @@ public class ProjectActivity extends ListActivity implements Observer {
     }
 
 	public void update(Observable arg0, Object arg1) {
-		AlertDialog alertDialog = new AlertDialog.Builder(this).create();
-		alertDialog.setTitle("An Error has ocurred");
-		alertDialog.setMessage(arg1.toString());
-		alertDialog.show();			
+		if(authThread != null) authThread.cancel(true);
 	}
 	
 	/**
 	 * A worker thread to manage the authenticate and network activity
 	 *
 	 */
-	private class AuthenticateUser extends AsyncTask<User, Integer, Boolean> {
+	private class AccountThread extends AsyncTask<User, Integer, Boolean> {
 				
 		@Override
 		protected void onPreExecute() {
