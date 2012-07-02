@@ -125,4 +125,13 @@ public class ContentProvider {
 	public void setContext(Context applicationContext) {
 		context = applicationContext;
 	}
+
+	public void addAccount(String account) {
+		user.addAccount(account);
+	}
+
+	public Boolean getAccountProjects() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

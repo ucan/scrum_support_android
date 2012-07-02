@@ -28,6 +28,7 @@ import com.google.resting.component.EncodingTypes;
 import com.google.resting.component.RequestParams;
 import com.google.resting.component.impl.BasicRequestParams;
 import com.google.resting.component.impl.ServiceResponse;
+import com.google.resting.component.impl.json.JSONRequestParams;
 
 
 public class RESTService {
@@ -55,7 +56,7 @@ public class RESTService {
 			return link;
 		}
 	}
-	
+
 	protected RESTService(Context context) {
 		port = 3000;
 		links = new HashMap<Link, String>();
@@ -114,7 +115,7 @@ public class RESTService {
 	 * @return
 	 */
 	public ServiceResponse registerUser(User user) {
-		RequestParams params = new BasicRequestParams();
+		JSONRequestParams params = new JSONRequestParams();
 		params.add("email", user.getEmail());
 		params.add("password", user.getPassword());
 		params.add("password_confirmation", user.getConfirmedPassword());

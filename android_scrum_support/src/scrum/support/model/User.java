@@ -1,5 +1,8 @@
 package scrum.support.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * A simple user model
  * @author Dave W
@@ -11,6 +14,7 @@ public class User {
 	private String email;
 	private String password_confirmation;
 	private Token token;
+	private List<String> accountTokens;
 	
 	/**
 	 * Constructor
@@ -21,7 +25,8 @@ public class User {
 	public User(String email, String password) {
 		this.email = email;
 		this.password = password;
-		this.password_confirmation = password; //TODO: FIX ME!!!
+		this.password_confirmation = ""; 
+		accountTokens = new ArrayList<String>();
 	}
 	
 	public String getEmail() {
@@ -50,5 +55,9 @@ public class User {
 
 	public void confirmPass(String confirmPass) {
 		password_confirmation = confirmPass;		
+	}
+
+	public void addAccount(String account) {
+		accountTokens.add(account);		
 	}
 }

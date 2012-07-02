@@ -8,7 +8,22 @@
     <string name="registerText">Register</string>
     <string name="serverAddress">Server Address</string>
     <string name="confirmPassLbl">Confirm Password</string>
+    <string name="addToken">Add Account Token</string>
+    <string name="tokenHint">Account Token</string>
+    <string name="tokenLbl">Add New Account Token</string>
+    <string name="add">Add</string>
+    
+    <string name="title_error">An Error has ocurred</string>    
+    <string name="title_auth">Authenication</string>      
+    <string name="title_auth_progress">Authenication&#8230;</string>    
+    <string name="title_reg">Registration</string>
 
+    <string name="msg_auth">Attempting to Authenticate</string>
+    
     <string name="error_connection">Unable to connect to the Scrum Support Server.</string>
     <string name="error_json_parse">Unable to parse the JSON service message.</string>
+	<string name="error_registration">Registration failed. Ensure you are using a valid email and your passwords match.</string>  
+	<string name="error_authenication">Authentication Failed.</string>  
+	
+	
 </resources>

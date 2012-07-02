@@ -43,6 +43,8 @@ public class LoginActivity extends Activity implements Observer {
 	private Activity activity;
 	private AsyncTask<User, Integer, Boolean> authThread;
 	
+	private User currentUser;
+	
 	private boolean hideServerFields;
 	
     /** 
@@ -65,7 +67,8 @@ public class LoginActivity extends Activity implements Observer {
         		String username = ((EditText) findViewById(R.id.usernameField)).getText().toString();
             	String password = ((EditText) findViewById(R.id.passwordField)).getText().toString();
             	authThread = new AuthenticateUser();
-            	authThread.execute(new User(username, password));
+            	currentUser = new User(username, password);
+            	authThread.execute();
             }  
         });
 		
@@ -128,8 +131,7 @@ public class LoginActivity extends Activity implements Observer {
 			serverIP.setVisibility(View.VISIBLE);
 			serverLbl.setVisibility(View.VISIBLE);	
 			hideServerFields = true;
-		}
-		
+		}		
 	}
     
 	/**
@@ -147,10 +149,10 @@ public class LoginActivity extends Activity implements Observer {
                     	
                 		String username = ((EditText) findViewById(R.id.usernameField)).getText().toString();
                     	String password = ((EditText) findViewById(R.id.passwordField)).getText().toString();
-                    	User user = new User(username, password);
-                    	user.confirmPass(confirmPass);
+                    	currentUser = new User(username, password);
+                    	currentUser.confirmPass(confirmPass);
                     	authThread = new AuthenticateUser();
-                    	authThread.execute(user);
+                    	authThread.execute();
                     	
                     }
                 } catch (Exception e) {
@@ -176,15 +178,14 @@ public class LoginActivity extends Activity implements Observer {
 				
 		@Override
 		protected void onPreExecute() {
-			pd = ProgressDialog.show(activity, "Authenticating..", "Attempting to Authenticate", true, false);
+			pd = ProgressDialog.show(activity, 
+					activity.getString(R.string.title_auth_progress), 
+					activity.getString(R.string.msg_auth), true, false);
 		}
 
 		@Override
-		protected Boolean doInBackground(User... params) {
-			if(params.length == 1) {
-				return ContentProvider.getInstance().validateUser(params[0]);
-			}
-			return false;
+		protected Boolean doInBackground(User...params) {
+			return ContentProvider.getInstance().validateUser(currentUser);
 		}
 
 		@Override
@@ -196,9 +197,16 @@ public class LoginActivity extends Activity implements Observer {
 		    	 } else {
 		    		 
 	    	 		final AlertDialog alertDialog = new AlertDialog.Builder(activity).create();
-					alertDialog.setTitle("Authenticaton");
-					alertDialog.setMessage("Authentication Failed.");
-					alertDialog.setButton("OK", new DialogInterface.OnClickListener() {
+					if(currentUser.needsToRegister()) {
+						alertDialog.setTitle(activity.getString(R.string.title_auth));
+						alertDialog.setMessage(activity.getString(R.string.error_registration));
+					} else {
+						alertDialog.setTitle(activity.getString(R.string.title_reg));
+						alertDialog.setMessage(activity.getString(R.string.error_authenication));
+					}
+					alertDialog.setButton(activity.getString(android.R.string.ok), 
+							new DialogInterface.OnClickListener() {
+						
 						public void onClick(DialogInterface dialog, int which) {
 							alertDialog.dismiss();
 						}
@@ -211,9 +219,11 @@ public class LoginActivity extends Activity implements Observer {
 	    		 // Pull the last error out of the ErrorService.
 	    		 
 	    			final AlertDialog alertDialog = new AlertDialog.Builder(activity).create();
-	    			alertDialog.setTitle("An Error has ocurred");
+	    			alertDialog.setTitle(activity.getString(R.string.title_error));
 	    			alertDialog.setMessage(ErrorService.getInstance().getError());
-					alertDialog.setButton("OK", new DialogInterface.OnClickListener() {
+					alertDialog.setButton(activity.getString(android.R.string.ok), 
+							new DialogInterface.OnClickListener() {
+						
 						public void onClick(DialogInterface dialog, int which) {
 							alertDialog.dismiss();
 						}
