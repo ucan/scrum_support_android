@@ -9,7 +9,6 @@ public class ErrorService extends Observable {
 
 	private static ErrorService instance;
 	private List<Error> errors;
-	private String lastest;
 	
 	private ErrorService() {
 		errors = new ArrayList<Error>();

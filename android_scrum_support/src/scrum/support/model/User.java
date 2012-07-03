@@ -12,9 +12,9 @@ public class User {
 	
 	private String password;
 	private String email;
-	private String password_confirmation;
 	private Token token;
-	private List<String> accountTokens;
+	private List<Account> accounts;
+	private boolean hasRegistered;
 	
 	/**
 	 * Constructor
@@ -22,11 +22,11 @@ public class User {
 	 * @param password
 	 * @param register
 	 */
-	public User(String email, String password) {
+	public User(String email, String password, boolean hasRegistered) {
 		this.email = email;
 		this.password = password;
-		this.password_confirmation = ""; 
-		accountTokens = new ArrayList<String>();
+		accounts = new ArrayList<Account>();
+		this.hasRegistered = hasRegistered;
 	}
 	
 	public String getEmail() {
@@ -37,12 +37,8 @@ public class User {
 		return password;
 	}
 	
-	public String getConfirmedPassword() {
-		return password_confirmation;
-	}
-	
-	public boolean needsToRegister() {
-		return password_confirmation.length() > 0;
+	public boolean isRegistered() {
+		return hasRegistered;
 	}
 
 	public void setToken(String token) {
@@ -53,11 +49,10 @@ public class User {
 		return token;
 	}
 
-	public void confirmPass(String confirmPass) {
-		password_confirmation = confirmPass;		
-	}
-
-	public void addAccount(String account) {
-		accountTokens.add(account);		
+	public boolean addAccount(Account account) {
+		if (account != null && !accounts.contains(account)) {
+			return accounts.add(account);		
+		}
+		return false;
 	}
 }

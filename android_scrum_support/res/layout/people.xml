@@ -15,10 +15,4 @@
         android:fastScrollEnabled="true">
     </ListView>
     
-    <TextView android:id="@+id/no_accounts_tv" 
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent" 
-        android:text="@string/no_accounts_text"
-        android:textSize="20sp" />
-
 </RelativeLayout>

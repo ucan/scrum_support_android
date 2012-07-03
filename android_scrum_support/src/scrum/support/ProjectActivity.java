@@ -1,5 +1,6 @@
 package scrum.support;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
@@ -11,48 +12,75 @@ import scrum.support.services.ErrorService;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ListActivity;
-import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnClickListener;
+import android.view.Window;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
+import android.widget.ListView;
+import android.widget.TextView;
 
 public class ProjectActivity extends ListActivity implements Observer {
     /** Called when the activity is first created. */
 	
-	private final static int NEW_TOKEN = 1;
 	
-	private List<Project> projects;
-	private Button tokenAddButton;
+	private final int NEW_ACCOUNT = 1;
+	private final int SHOW_PEOPLE = 2;
+	
+	
+	private AsyncTask<User, Integer, Boolean> projectThread; 
+	private ArrayAdapter<Project> projectsAdapter;
+	
 	private Activity activity;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState); 
+        super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+        Log.d("PROJECT ACTIVITY", "Starting");
         activity = this;
     	ErrorService.getInstance().addObserver(this);
-        projects = ContentProvider.getInstance().getProjects();
-        
-        setListAdapter(new ArrayAdapter<Project>(this, android.R.layout.simple_list_item_1, projects));
-   
+    	projectsAdapter = new ArrayAdapter<Project>(this, R.layout.project_row, R.id.project_title, new ArrayList<Project>());
+    	projectsAdapter.setNotifyOnChange(false);
+    	setContentView(R.layout.projects);
+        setListAdapter(projectsAdapter);
+        getListView().setEmptyView(findViewById(R.id.no_accounts_tv));
+        updateProjects();
     }
-    
-    /**
-     * When the menu button is used the server related buttons will
-     * toggle visible and invisible.
-     */
+
     @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
-    	Intent confirmIntent = new Intent(activity, NewAccountActivity.class);
-    	activity.startActivityForResult(confirmIntent, NEW_TOKEN);	
+    public boolean onCreateOptionsMenu(Menu menu) {
+    	MenuInflater inflater = getMenuInflater();
+    	inflater.inflate(R.menu.projects_menu, menu);
     	return true;
     }
     
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.add_account:
+            	Intent confirmIntent = new Intent(activity, NewAccountActivity.class);
+            	activity.startActivityForResult(confirmIntent, NEW_ACCOUNT);	
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+    
+    @Override
+    public void onListItemClick(ListView l, View v, int position, long id) {
+    	Log.i("PROJECT ACTIVITY", projectsAdapter.getItem(position).toString());
+    	Intent personIntent = new Intent(activity, PersonActivity.class);
+    	personIntent.putExtra("android.scrum.support.ProjectActivity.PROJECT", projectsAdapter.getItem(position));
+    	activity.startActivityForResult(personIntent, SHOW_PEOPLE);
+    	
+    }
 
 	/**
 	 * Called when an activity returns.
@@ -60,48 +88,53 @@ public class ProjectActivity extends ListActivity implements Observer {
 	 * NEW_TOKEN is called when the new token activity is returned.
 	 * Once returned the app tries to get the new projects.
 	 */
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
-            case NEW_TOKEN:
-                try {
-                    String account = data.getStringExtra("account_added");
-                    if (account != null &&account.length() > 0) {
-                    	
-                    	
-                    }
-                } catch (Exception e) {
+            case NEW_ACCOUNT:
+            	int accountId = data.getIntExtra("account_id", -1);
+            	Log.d("PROJECT ACTIVITY", "Account id = " + accountId);
+                if (accountId != -1) {
+                	updateProjects();
                 }
-                break;
-            default:
-                break;
         }
     }
-
+    
 	public void update(Observable arg0, Object arg1) {
-		if(authThread != null) authThread.cancel(true);
+		if(projectThread != null) projectThread.cancel(true);
 	}
 	
-	/**
-	 * A worker thread to manage the authenticate and network activity
-	 *
-	 */
-	private class AccountThread extends AsyncTask<User, Integer, Boolean> {
-				
+	public void updateProjects() {
+		projectThread = new ProjectThread();
+    	projectThread.execute();
+	}
+	
+	
+	private class ProjectThread extends AsyncTask<User, Integer, Boolean> {
+		List<Project> projects;
+		
 		@Override
 		protected void onPreExecute() {
-			// do nothing
+			setProgressBarIndeterminateVisibility(true);
 		}
 
 		@Override
 		protected Boolean doInBackground(User...params) {
-			return ContentProvider.getInstance().getAccountProjects();
+			projects = ContentProvider.getInstance().getProjects();
+			return true;
 		}
 
 		@Override
 	     protected void onPostExecute(Boolean result) {
 	    	 if(result != null) {
 	    		 if(result) {
-	    			 // update list with new projects
+	    			 projectsAdapter.clear();
+	    			 for (Project p : projects) {
+	    				 projectsAdapter.add(p);
+	    			 }
+	    			 projectsAdapter.notifyDataSetChanged();
+	    			 setProgressBarIndeterminateVisibility(false);
+	    			 Log.d("PROJECT ACTIVITY", "projects size = " + projects.size());
 		    	 }
 	    	 } else {
 	    		 

@@ -20,6 +20,7 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 /**
  * The login activity which is the first activity seen by 
@@ -59,16 +60,18 @@ public class LoginActivity extends Activity implements Observer {
     	
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
-        setupServerAddressConfig();        
+        setupServerAddressConfig();
+        
+        //TODO: Remove following two lines before commit!
+        ((EditText) findViewById(R.id.usernameField)).setText("abc@hello.com");
+        ((EditText) findViewById(R.id.passwordField)).setText("t");
 
 		loginButton = (Button)findViewById(R.id.loginButton);
 		loginButton.setOnClickListener(new OnClickListener(){  
             public void onClick(View v) { 
         		String username = ((EditText) findViewById(R.id.usernameField)).getText().toString();
             	String password = ((EditText) findViewById(R.id.passwordField)).getText().toString();
-            	authThread = new AuthenticateUser();
-            	currentUser = new User(username, password);
-            	authThread.execute();
+            	login(username, password, true);
             }  
         });
 		
@@ -134,6 +137,12 @@ public class LoginActivity extends Activity implements Observer {
 		}		
 	}
     
+    private void login(String username, String password, boolean hasRegistered) {
+    	currentUser = new User(username, password, hasRegistered);
+    	authThread = new AuthenticateUser();
+    	authThread.execute();
+    }
+    
 	/**
 	 * Called when an activity returns.
 	 * 
@@ -143,19 +152,20 @@ public class LoginActivity extends Activity implements Observer {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
             case CONFIRM_PASS:
-                try {
-                    String confirmPass = data.getStringExtra("confirmedPass");
-                    if (confirmPass != null &&confirmPass.length() > 0) {
-                    	
-                		String username = ((EditText) findViewById(R.id.usernameField)).getText().toString();
-                    	String password = ((EditText) findViewById(R.id.passwordField)).getText().toString();
-                    	currentUser = new User(username, password);
-                    	currentUser.confirmPass(confirmPass);
-                    	authThread = new AuthenticateUser();
-                    	authThread.execute();
-                    	
-                    }
-                } catch (Exception e) {
+                String confirmPass = data.getStringExtra("confirmedPass");
+                if (confirmPass != null && confirmPass.length() > 0) {
+                	String username = ((EditText) findViewById(R.id.usernameField)).getText().toString();
+                	String password = ((EditText) findViewById(R.id.passwordField)).getText().toString();
+                	if (confirmPass.equals(password)) {
+                		login(username, password, false);
+                	}
+                	else {
+                		Toast t = Toast.makeText(activity, R.string.passwordsDontMatch, 2);
+                		t.show();
+                	}
+                }
+                else {
+                	// TODO: ??
                 }
                 break;
             default:
@@ -197,12 +207,12 @@ public class LoginActivity extends Activity implements Observer {
 		    	 } else {
 		    		 
 	    	 		final AlertDialog alertDialog = new AlertDialog.Builder(activity).create();
-					if(currentUser.needsToRegister()) {
+					if(currentUser.isRegistered()) {
 						alertDialog.setTitle(activity.getString(R.string.title_auth));
-						alertDialog.setMessage(activity.getString(R.string.error_registration));
+						alertDialog.setMessage(activity.getString(R.string.error_authentication));
 					} else {
 						alertDialog.setTitle(activity.getString(R.string.title_reg));
-						alertDialog.setMessage(activity.getString(R.string.error_authenication));
+						alertDialog.setMessage(activity.getString(R.string.error_registration));
 					}
 					alertDialog.setButton(activity.getString(android.R.string.ok), 
 							new DialogInterface.OnClickListener() {

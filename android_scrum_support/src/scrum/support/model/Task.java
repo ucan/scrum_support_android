@@ -19,4 +19,8 @@ public class Task {
 		this.description = description;
 		currentStatus = status;
 	}
+	
+	public String getDescription() {
+		return description;
+	}
 }

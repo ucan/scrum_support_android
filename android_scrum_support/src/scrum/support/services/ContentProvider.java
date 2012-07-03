@@ -2,9 +2,13 @@ package scrum.support.services;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 
-import scrum.support.R;
+import org.apache.http.HttpStatus;
+
+import scrum.support.model.Account;
+import scrum.support.model.Person;
 import scrum.support.model.Project;
 import scrum.support.model.User;
 import android.content.Context;
@@ -22,12 +26,6 @@ import com.google.resting.component.impl.ServiceResponse;
  *
  */
 public class ContentProvider {
-	
-	private final static int OK = 200;
-	private final static int CREATED = 201;
-	private final static int CONFLICT = 409;
-	private final static int BAD_REQUEST = 400;
-	private final static int UNAUTHORIZED = 401;
 	
 	private static ContentProvider instance = null;
 	private RESTService rest;
@@ -69,26 +67,27 @@ public class ContentProvider {
 		boolean valid = false;
 		ServiceResponse response;
 		
-		if (user.needsToRegister()) {
-			response = rest.registerUser(user);
-			if (response.getStatusCode() == CREATED) {
-				valid = true;
-			}
-			else {
-				Log.e("USER", "Failed to register user: " + response.getContentData());
-			}
-		}
-		else {
-			response = rest.authenicateUser(user);
-			if (response.getStatusCode() == OK) {
+		if (user.isRegistered()) {
+			response = rest.authenticateUser(user);
+			if (response.getStatusCode() == HttpStatus.SC_OK) {
 				valid = true;
 			}
 			else {
 				Log.e("USER", "Failed to authenticate user: " + response.getContentData());
 			}
 		}
+		else {
+			response = rest.registerUser(user);
+			if (response.getStatusCode() == HttpStatus.SC_CREATED) {
+				valid = true;
+			}
+			else {
+				Log.e("USER", "Failed to register user: " + response.getContentData());
+			}
+		}
 		
 		if (valid) {
+			Log.i("Validation", "OK");
 			this.user = user;
 			user.setToken(jsonStringHelper(response, "user", "auth_token"));
 		}
@@ -104,7 +103,27 @@ public class ContentProvider {
 	}	
 	
 	public List<Project> getProjects() {
+//		List<Project> shit = new ArrayList<Project>();
+//		for (int i = 0; i < 50; i++) {
+//			shit.add(new Project(i, "Yay! Ima project #" + i));
+//		}
+//		
+//		shit.addAll(rest.getProjects(user.getToken()));
+//		return shit;
 		return rest.getProjects(user.getToken());
+	}
+	
+	/**
+	 * Fetch all stories and members for a project
+	 * @param project
+	 * @return
+	 */
+	public Project updateProject(int projectId) {
+		Project project = rest.getProject(projectId, user.getToken());
+//		for (int i = 0; i < 10; i++) {
+//			newP.addMember(new Member("Fred # " + i, "fred" + i + "@testing.com", null));
+//		}
+		return project;
 	}
 	
 	/**
@@ -126,12 +145,17 @@ public class ContentProvider {
 		context = applicationContext;
 	}
 
-	public void addAccount(String account) {
-		user.addAccount(account);
+	public int addAccount(String type, String apiKey) {
+		Account account = rest.addAccount(user.getToken(), type, apiKey);
+		if (account != null) {
+			user.addAccount(account);
+			return account.getId();
+		}
+		return -1;
 	}
 
-	public Boolean getAccountProjects() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+//	public Boolean getAccountProjects() {
+//		// TODO Auto-generated method stub
+//		return null;
+//	}
 }
