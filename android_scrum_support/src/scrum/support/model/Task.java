@@ -2,22 +2,25 @@ package scrum.support.model;
 
 public class Task {
 
-	enum Status {
-		Done,
-		NotStarted,
+	public enum Status {
+		DONE,
+		STARTED,
+		NOT_STARTED,
+		BLOCKED;
 	}
 	
+	int id;
 	String description;
 	Status currentStatus;
 	
-	public Task(String description) {
-		this.description = description;
-		currentStatus = Status.NotStarted;
+	public Task(int id, String description) {
+		this(id, description, Status.NOT_STARTED);
 	}
 	
-	public Task(String description, Status status) {
+	public Task(int id, String description, Status status) {
+		this.id = id;
 		this.description = description;
-		currentStatus = status;
+		currentStatus = status != null ? status : Status.NOT_STARTED;
 	}
 	
 	public String getDescription() {

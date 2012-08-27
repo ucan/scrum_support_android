@@ -5,11 +5,6 @@
     android:layout_height="fill_parent"
     android:orientation="vertical" >
 
-    <requestFocus
-        android:layout_alignBottom="@+id/usernameField"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="22dp" />
-
     <TextView
         android:id="@+id/title"
         android:layout_width="wrap_content"
@@ -21,27 +16,23 @@
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
     <EditText
-        android:id="@+id/usernameField"
+        android:id="@+id/emailField"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/title"
+        android:layout_below="@id/title"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="50dp"
-        android:hint="@string/usernameText"
+        android:hint="@string/emailText"
         android:ems="10" >
+        <requestFocus />
     </EditText>
     
-    <requestFocus
-        android:layout_alignBottom="@+id/passwordField"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="22dp" />
-
     <EditText
         android:id="@+id/passwordField"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/usernameField"
-        android:layout_below="@+id/usernameField"
+        android:layout_alignLeft="@id/emailField"
+        android:layout_below="@id/emailField"
         android:layout_marginTop="28dp"
         android:ems="10"
         android:hint="@string/passwordText"
@@ -51,8 +42,8 @@
         android:id="@+id/loginButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignRight="@+id/title"
-        android:layout_below="@+id/passwordField"
+        android:layout_alignRight="@id/title"
+        android:layout_below="@id/passwordField"
         android:layout_marginRight="31dp"
         android:layout_marginTop="30dp"
         android:text="@string/loginText" />
@@ -61,9 +52,9 @@
         android:id="@+id/registerButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/loginButton"
-        android:layout_alignBottom="@+id/loginButton"
-        android:layout_alignLeft="@+id/title"
+        android:layout_alignBaseline="@id/loginButton"
+        android:layout_alignBottom="@id/loginButton"
+        android:layout_alignLeft="@id/title"
         android:layout_marginLeft="14dp"
         android:text="@string/registerText" /> 
     
@@ -80,9 +71,9 @@
         android:id="@+id/serverField"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignRight="@+id/title"
-        android:layout_below="@+id/serverAddressLbl"
-        android:layout_alignLeft="@+id/passwordField"
+        android:layout_alignRight="@id/title"
+        android:layout_below="@id/serverAddressLbl"
+        android:layout_alignLeft="@id/passwordField"
         android:layout_marginTop="14dp"
         android:ems="10"/>
 
@@ -90,9 +81,9 @@
         android:id="@+id/serverOkButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/serverAddressLbl"
-        android:layout_alignRight="@+id/serverAddressLbl"
-        android:layout_below="@+id/serverField"
+        android:layout_alignLeft="@id/serverAddressLbl"
+        android:layout_alignRight="@id/serverAddressLbl"
+        android:layout_below="@id/serverField"
         android:text="@android:string/ok"/>
 
 </RelativeLayout>

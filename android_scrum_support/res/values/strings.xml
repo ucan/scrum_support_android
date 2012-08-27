@@ -2,7 +2,7 @@
 <resources>
 
     <string name="app_name">Your Scrum Support</string>
-    <string name="usernameText">user</string>
+    <string name="emailText">email</string>
     <string name="passwordText">password</string>
     <string name="loginText">Login</string>
     <string name="registerText">Register</string>
@@ -10,17 +10,21 @@
     <string name="confirmPassLbl">Confirm Password</string>
     <string name="passwordsDontMatch">Passwords do not match</string>
     
-    <string name="addToken">Add Account Token</string>
-    <string name="tokenHint">Account Token</string>
-    <string name="tokenLbl">Add New Account Token</string>
-    <string name="add">Add</string>
-    
     <string name="title_error">An Error has ocurred</string>    
     <string name="title_auth">Authentication</string>      
     <string name="title_auth_progress">Authentication&#8230;</string>    
     <string name="title_reg">Registration</string>
 
     <string name="msg_auth">Attempting to Authenticate</string>
+    
+    
+    <!-- Add Account -->
+    <string name="addPtAccount">  Pivotal Tracker Account:</string>
+    <string name="accountHint"></string>
+    <string name="passwordHint">password</string>
+    <string name="usernameHint">username</string>
+    <string name="newAccountLbl">Add New Account</string>
+    <string name="add">Add</string>
     
     
     <!-- Errors -->

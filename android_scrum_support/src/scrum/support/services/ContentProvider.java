@@ -2,13 +2,11 @@ package scrum.support.services;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.http.HttpStatus;
 
 import scrum.support.model.Account;
-import scrum.support.model.Person;
 import scrum.support.model.Project;
 import scrum.support.model.User;
 import android.content.Context;
@@ -40,7 +38,7 @@ public class ContentProvider {
 	 */
 	private ContentProvider() {
 		try {
-			baseURL =  new URL("http://132.181.15.56/");
+			baseURL =  new URL("http://132.181.15.111/");
 		} catch (MalformedURLException e) {
 			e.printStackTrace();
 		}
@@ -102,14 +100,7 @@ public class ContentProvider {
 		baseURL = new URL(address);		
 	}	
 	
-	public List<Project> getProjects() {
-//		List<Project> shit = new ArrayList<Project>();
-//		for (int i = 0; i < 50; i++) {
-//			shit.add(new Project(i, "Yay! Ima project #" + i));
-//		}
-//		
-//		shit.addAll(rest.getProjects(user.getToken()));
-//		return shit;
+	public List<Project> getProjects() {;
 		return rest.getProjects(user.getToken());
 	}
 	
@@ -119,11 +110,7 @@ public class ContentProvider {
 	 * @return
 	 */
 	public Project updateProject(int projectId) {
-		Project project = rest.getProject(projectId, user.getToken());
-//		for (int i = 0; i < 10; i++) {
-//			newP.addMember(new Member("Fred # " + i, "fred" + i + "@testing.com", null));
-//		}
-		return project;
+		return rest.getProject(projectId, user.getToken());
 	}
 	
 	/**
@@ -145,17 +132,12 @@ public class ContentProvider {
 		context = applicationContext;
 	}
 
-	public int addAccount(String type, String apiKey) {
-		Account account = rest.addAccount(user.getToken(), type, apiKey);
+	public int addAccount(String type, String email,  String password) {
+		Account account = rest.addAccount(user.getToken(), type, email, password);
 		if (account != null) {
 			user.addAccount(account);
 			return account.getId();
 		}
 		return -1;
 	}
-
-//	public Boolean getAccountProjects() {
-//		// TODO Auto-generated method stub
-//		return null;
-//	}
 }

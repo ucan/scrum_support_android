@@ -20,5 +20,4 @@
          android:paddingTop="1sp"
          android:paddingLeft="5sp"
          android:paddingBottom="4sp"/>
-    
 </LinearLayout>

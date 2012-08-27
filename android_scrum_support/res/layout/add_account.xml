@@ -3,34 +3,47 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
 
+    <!-- Need to add account type selector -->
+    
     <TextView
-        android:id="@+id/tokenLbl"
+        android:id="@+id/newAccountLbl"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
+        android:layout_centerHorizontal="false"
         android:layout_marginTop="10dp"
-        android:text="@string/tokenLbl"
+        android:text="@string/addPtAccount"
         android:textAppearance="?android:attr/textAppearanceMedium"/>
 
     <EditText
-        android:id="@+id/tokenField"
+        android:id="@+id/newAccountUsernameET"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/tokenLbl"
+        android:layout_below="@id/newAccountLbl"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="17dp"
-        android:hint="@string/tokenHint"
+        android:hint="@string/usernameHint"
         android:ems="10" >
-
         <requestFocus />
+    </EditText>
+    
+    <EditText
+        android:id="@+id/newAccountPasswordET"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/newAccountUsernameET"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="17dp"
+        android:hint="@string/passwordHint"
+        android:ems="10" 
+        android:inputType="textPassword" >
     </EditText>
 
     <Button
-        android:id="@+id/addTokenBtn"
+        android:id="@+id/addAccountBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/tokenField"
+        android:layout_below="@id/newAccountPasswordET"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="18dp"       
         android:text="@string/add" />

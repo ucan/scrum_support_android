@@ -22,6 +22,9 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+//TODO: Check network connection
+
+
 /**
  * The login activity which is the first activity seen by 
  * users who are not logged in automatically.
@@ -59,19 +62,19 @@ public class LoginActivity extends Activity implements Observer {
     	ContentProvider.getInstance().setContext(this.getApplicationContext());
     	
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.main);
+        setContentView(R.layout.login);
         setupServerAddressConfig();
         
-        //TODO: Remove following two lines before commit!
-        ((EditText) findViewById(R.id.usernameField)).setText("abc@hello.com");
+        //TODO: Remove following two lines before release
+        ((EditText) findViewById(R.id.emailField)).setText("abc@hello.com");
         ((EditText) findViewById(R.id.passwordField)).setText("t");
 
 		loginButton = (Button)findViewById(R.id.loginButton);
 		loginButton.setOnClickListener(new OnClickListener(){  
             public void onClick(View v) { 
-        		String username = ((EditText) findViewById(R.id.usernameField)).getText().toString();
+        		String email = ((EditText) findViewById(R.id.emailField)).getText().toString();
             	String password = ((EditText) findViewById(R.id.passwordField)).getText().toString();
-            	login(username, password, true);
+            	login(email, password, true);
             }  
         });
 		
@@ -137,8 +140,8 @@ public class LoginActivity extends Activity implements Observer {
 		}		
 	}
     
-    private void login(String username, String password, boolean hasRegistered) {
-    	currentUser = new User(username, password, hasRegistered);
+    private void login(String email, String password, boolean hasRegistered) {
+    	currentUser = new User(email, password, hasRegistered);
     	authThread = new AuthenticateUser();
     	authThread.execute();
     }
@@ -154,10 +157,10 @@ public class LoginActivity extends Activity implements Observer {
             case CONFIRM_PASS:
                 String confirmPass = data.getStringExtra("confirmedPass");
                 if (confirmPass != null && confirmPass.length() > 0) {
-                	String username = ((EditText) findViewById(R.id.usernameField)).getText().toString();
+                	String email = ((EditText) findViewById(R.id.emailField)).getText().toString();
                 	String password = ((EditText) findViewById(R.id.passwordField)).getText().toString();
                 	if (confirmPass.equals(password)) {
-                		login(username, password, false);
+                		login(email, password, false);
                 	}
                 	else {
                 		Toast t = Toast.makeText(activity, R.string.passwordsDontMatch, 2);
