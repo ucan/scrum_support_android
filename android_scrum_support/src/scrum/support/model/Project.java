@@ -1,15 +1,15 @@
 package scrum.support.model;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-public class Project implements Serializable {
+import android.os.Parcel;
+import android.os.Parcelable;
 
+public class Project implements Parcelable {
 	private int id;
 	private String title;
 	private SortedSet<Story> stories;
@@ -82,7 +82,43 @@ public class Project implements Serializable {
 		return title;
 	}
 	
+	public List<Task> getAllTasks() {
+		List<Task> tasks = new ArrayList<Task>();
+		for (Story story : stories) {
+			tasks.addAll(story.getTasks());
+		}
+		return tasks;
+	}
+	
 	public String toString() {
 		return title;
+	}
+
+	public int describeContents() {
+		return 0;
+	}
+	
+	public void writeToParcel(Parcel dest, int flags) {
+		dest.writeInt(id);
+		dest.writeString(title);
+		dest.writeTypedList(new ArrayList<Story>(stories));
+		dest.writeTypedList(new ArrayList<Person>(people));
+	}
+	
+	public static final Parcelable.Creator<Project> CREATOR = new Parcelable.Creator<Project>() {
+		public Project createFromParcel(Parcel in) {
+		    return new Project(in);
+		}
+
+		public Project[] newArray(int size) {
+		    return new Project[size];
+		}
+	};
+
+	private Project(Parcel in) {
+		id = in.readInt();
+		title = in.readString();
+		stories = new TreeSet<Story>(in.createTypedArrayList(Story.CREATOR));
+		people = new TreeSet<Person>(in.createTypedArrayList(Person.CREATOR));
 	}
 }

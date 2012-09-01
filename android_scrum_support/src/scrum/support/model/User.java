@@ -1,7 +1,10 @@
 package scrum.support.model;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+
+import android.util.Log;
 
 /**
  * A simple user model
@@ -49,10 +52,37 @@ public class User {
 		return token;
 	}
 
-	public boolean addAccount(Account account) {
+	public boolean addAccount(Account account) {    // TODO: Need to check if this is updating an existing account/creating a new one
 		if (account != null && !accounts.contains(account)) {
 			return accounts.add(account);		
 		}
 		return false;
+	}
+	
+	// Convenience method, called after user has logged in
+	public void setAccounts(List<Account> accounts) {
+		this.accounts = accounts;
+	}
+	
+	public Account getAccountForProject(int projectId) {
+		for (Account account : accounts) {
+			Project project = account.getProject(projectId);
+			if (project != null) {
+				return account;
+			}
+		}
+		return null;
+	}
+	
+	public List<Account> getAccounts() {
+		return Collections.unmodifiableList(accounts);
+	}
+	
+	public List<Project> getAllProjects() {
+		List<Project> projects = new ArrayList<Project>();
+		for (Account account : accounts) {
+			projects.addAll(account.getProjects());
+		}
+		return projects;
 	}
 }

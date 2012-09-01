@@ -1,6 +1,9 @@
 package scrum.support.model;
 
-public class Person implements Comparable<Person> {
+import android.os.Parcel;
+import android.os.Parcelable;
+
+public class Person implements Comparable<Person>, Parcelable {
 
 	private int id;
 	private String name;
@@ -65,5 +68,33 @@ public class Person implements Comparable<Person> {
 
 	public int compareTo(Person another) {
 		return name.compareTo(another.name);
+	}
+
+	public int describeContents() {
+		return 0;
+	}
+
+	public void writeToParcel(Parcel dest, int flags) {
+		dest.writeInt(id);
+		dest.writeString(name);
+		dest.writeString(email);
+		dest.writeValue(task);
+	}
+	
+	public static final Parcelable.Creator<Person> CREATOR = new Parcelable.Creator<Person>() {
+		public Person createFromParcel(Parcel in) {
+		    return new Person(in);
+		}
+		
+		public Person[] newArray(int size) {
+		    return new Person[size];
+		}
+	};
+	
+	private Person(Parcel in) {
+		id = in.readInt();
+		email = in.readString();
+		name = in.readString();
+		task = (Task)in.readValue(Task.class.getClassLoader());
 	}
 }

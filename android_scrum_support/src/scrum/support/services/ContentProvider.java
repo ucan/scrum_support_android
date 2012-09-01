@@ -3,11 +3,15 @@ package scrum.support.services;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.http.HttpStatus;
 
 import scrum.support.model.Account;
+import scrum.support.model.Person;
 import scrum.support.model.Project;
+import scrum.support.model.Story;
+import scrum.support.model.Task;
 import scrum.support.model.User;
 import android.content.Context;
 import android.util.Log;
@@ -38,7 +42,7 @@ public class ContentProvider {
 	 */
 	private ContentProvider() {
 		try {
-			baseURL =  new URL("http://132.181.15.111/");
+			baseURL =  new URL("http://132.181.15.41/");
 		} catch (MalformedURLException e) {
 			e.printStackTrace();
 		}
@@ -68,6 +72,8 @@ public class ContentProvider {
 		if (user.isRegistered()) {
 			response = rest.authenticateUser(user);
 			if (response.getStatusCode() == HttpStatus.SC_OK) {
+				extractToken(response, user);
+				rest.fetchAccounts(user);
 				valid = true;
 			}
 			else {
@@ -77,31 +83,55 @@ public class ContentProvider {
 		else {
 			response = rest.registerUser(user);
 			if (response.getStatusCode() == HttpStatus.SC_CREATED) {
+				extractToken(response, user);
 				valid = true;
 			}
 			else {
 				Log.e("USER", "Failed to register user: " + response.getContentData());
 			}
 		}
-		
-		if (valid) {
-			Log.i("Validation", "OK");
-			this.user = user;
-			user.setToken(jsonStringHelper(response, "user", "auth_token"));
-		}
 		return valid;
+	}
+	
+	private void extractToken(ServiceResponse response, User user) {
+		this.user = user;
+		user.setToken(jsonStringHelper(response, "user", "auth_token"));
 	}
 	
 	public URL getServerAddress() {
 		return baseURL;
+	}
+	
+	public User getUser() {
+		return user;
 	}
 
 	public void updateServer(String address) throws MalformedURLException {
 		baseURL = new URL(address);		
 	}	
 	
-	public List<Project> getProjects() {;
-		return rest.getProjects(user.getToken());
+	public List<Project> getProjects(Account account) {
+		rest.fetchProjects(user.getToken(), account);
+		return account.getProjects();
+	}
+	
+	public List<Project> getAllProjects() {
+		for (Account account : user.getAccounts()) {
+			rest.fetchProjects(user.getToken(), account);
+		}
+		
+		Log.i("CONTENT PROVIDER", "num accounts: " + user.getAccounts().size());
+		Log.i("CONTENT PROVIDER", "num projects: " + user.getAllProjects().size());
+		
+		return user.getAllProjects();
+	}
+	
+	public boolean fetchTasks(Story story) {
+		return rest.fetchTasks(user.getToken(), story);
+	}
+	
+	public boolean isUser(Project project, Person person) {
+		return user.getAccountForProject(project.getId()).getEmail().equals(user.getEmail());
 	}
 	
 	/**
@@ -110,7 +140,18 @@ public class ContentProvider {
 	 * @return
 	 */
 	public Project updateProject(int projectId) {
+		// TODO: update account?
 		return rest.getProject(projectId, user.getToken());
+	}
+	
+	/**
+	 * Update the status and description of a task.
+	 * Whoever updates the task gets ownership of it (on the server that is...may need to change?)
+	 * @param task
+	 * @return
+	 */
+	public boolean updateTask(Task task) {
+		return rest.updateTask(user.getToken(), task);
 	}
 	
 	/**

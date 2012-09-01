@@ -12,6 +12,8 @@ import java.util.TreeSet;
 
 import org.apache.http.Header;
 import org.apache.http.HeaderElement;
+import org.apache.http.HttpRequest;
+import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.ParseException;
 
@@ -21,9 +23,9 @@ import scrum.support.model.Person;
 import scrum.support.model.Project;
 import scrum.support.model.Story;
 import scrum.support.model.Task;
-import scrum.support.model.Task.Status;
 import scrum.support.model.Token;
 import scrum.support.model.User;
+import scrum.support.model.Util.Status;
 import android.content.Context;
 import android.util.Log;
 
@@ -44,6 +46,7 @@ import com.google.resting.component.impl.ServiceResponse;
 import com.google.resting.component.impl.json.JSONRequestParams;
 import com.google.resting.method.get.GetHelper;
 import com.google.resting.method.post.PostHelper;
+import com.google.resting.method.put.PutHelper;
 
 //TODO: Every service method in this class needs error handling for possible returned http status codes
 public class RESTService {
@@ -155,25 +158,38 @@ public class RESTService {
 	 * 
 	 *  Returns JsonArray of Projects - {id: <id>, title: <title>} 
 	 */
-	public List<Project> getProjects(Token token) {
-		Log.d("REST SERVICE", "Fetching Projects");
+	public boolean fetchProjects(Token token, Account account) {
+		Log.d("REST SERVICE", "Fetching Projects for " + account);
+		
+		boolean updated = false;
+		
 		RequestParams params = new BasicRequestParams();
-		List<Project> response = Resting.getByJSON(
-				makeUrl(Link.PROJECTS), port, params, Project.class, "projects", EncodingTypes.UTF8, getAuthHeaders(token));
-		if(response == null) {
-			ErrorService.getInstance().raiseError(
-					new Error(context.getString(R.string.error_connection)));
+		String url = makeUrl(Link.ACCOUNTS) + "/" + account.getId();
+		
+		ServiceResponse response = GetHelper.get(url, port, params, EncodingTypes.UTF8, getAuthHeaders(token));
+		if (response == null) {
+			ErrorService.getInstance().raiseError(new Error(context.getString(R.string.error_connection)));
 			Log.e("REST SERVICE", "The REST Server was unavailable");
-			return null;
+		}
+		else if (response.getStatusCode() == HttpStatus.SC_OK) {
+			JsonElement json = new JsonParser().parse(response.getResponseString());
+			
+			JsonArray jProjects = json.getAsJsonObject().getAsJsonArray("projects");
+			for (JsonElement jProject : jProjects) {
+				Project project = gson.fromJson(jProject, Project.class);
+				if (project != null) {
+					account.addProject(project);
+				}
+				else {
+					Log.d("REST SERVICE", "getProjects: Error deserializing a project");
+				}
+			}
+			updated = true;
 		}
 		else {
-			for (Project p : response) {
-				Log.d("REST SERVICE", p.getId() + " " + p.getTitle());
-			}
+			// TODO: Check other http status codes
 		}
-		// TODO: Check http status code
-		Log.d("REST SERVICE", "Returning " + response.size() + " projects");
-		return response;
+		return updated;
 	}
 	
 	/**
@@ -215,12 +231,13 @@ public class RESTService {
 		
 	}
 	
-	public Account addAccount(Token token, String type, String accountToken) {
-		RequestParams params = new BasicRequestParams();
-		params.add("type", type);
-		params.add("api_token", accountToken);
-		return addAccount(token, params);
-	}
+	// Not currently supported by the api
+//	public Account addAccount(Token token, String type, String accountToken) {
+//		RequestParams params = new BasicRequestParams();
+//		params.add("type", type);
+//		params.add("api_token", accountToken);
+//		return addAccount(token, params);
+//	}
 	
 	private Account addAccount(Token token, RequestParams params) {
 		Account account = null;
@@ -235,6 +252,7 @@ public class RESTService {
 			if (account == null || account.getId() <= 0) {
 				//TODO: Raise error? Account not found
 				Log.e("REST SERVICE", response.getResponseString());
+				Log.i("REST SERVICE", "Returning new account with id: " + account.getId());
 				return null;
 			}
 		}
@@ -242,11 +260,88 @@ public class RESTService {
 			//TODO: Check forbidden if account already exists (TODO on server also!)
 			//TODO: Check bad request if parameters invalid
 			//TODO: Check unauthorized if auth token doesn't match account on server
-			ErrorService.getInstance().raiseError(new Error(context.getString(R.string.error_add_account)));
+			ErrorService.getInstance().raiseError(new Error(context.getString(R.string.error_add_account)));  // TODO this doesn't seem to do anything...Dave?
 			Log.i("REST SERVICE", "Ouch...something or someone fucked up " + (account == null));
 		}
-		Log.i("REST SERVICE", "Returning new account with id: " + account.getId());
 		return account;
+	}
+	
+	public boolean fetchAccounts(User user) {
+		boolean updated = false;
+		ServiceResponse response = GetHelper.get(makeUrl(Link.ACCOUNTS), port, null, EncodingTypes.UTF8, getAuthHeaders(user.getToken()));
+		if (response == null) {
+			ErrorService.getInstance().raiseError(new Error(context.getString(R.string.error_connection)));
+			Log.e("REST SERVICE", "The REST Server was unavailable");
+		}
+		else if (response.getStatusCode() == HttpStatus.SC_OK) {
+			JsonElement json = new JsonParser().parse(response.getResponseString());
+			
+			JsonArray jAccounts = json.getAsJsonObject().getAsJsonArray("accounts");
+			for (JsonElement jAccount : jAccounts) {
+				Account account = gson.fromJson(jAccount, Account.class);
+				if (account != null) {
+					user.addAccount(account);
+				}
+				else {
+					Log.d("REST SERVICE", "getProjects: Error deserializing an account");
+				}
+			}
+			
+			updated = true;
+		}
+		else {
+			// TODO: Need to check if response is 403/other ?
+		}
+		return updated;
+	}
+	
+	public boolean fetchTasks(Token token, Story story) {
+		boolean updated = false;
+		String url = makeUrl(Link.STORIES) + "/" + story.getId();
+		ServiceResponse response = GetHelper.get(url, port, null, EncodingTypes.UTF8, getAuthHeaders(token));
+		if (response == null) {
+			ErrorService.getInstance().raiseError(new Error(context.getString(R.string.error_connection)));
+			Log.e("REST SERVICE", "The REST Server was unavailable");
+		}
+		else if (response.getStatusCode() == HttpStatus.SC_OK) {
+			JsonElement json = new JsonParser().parse(response.getResponseString());
+			JsonArray jTasks = json.getAsJsonObject().getAsJsonArray("tasks");
+			for (JsonElement jTask : jTasks) {
+				Task task = gson.fromJson(jTask, Task.class);
+				if (task != null) {
+					story.addTask(task);
+				}
+				else {
+					Log.d("REST SERVICE", "getProjects: Error deserializing a task");
+				}
+			}
+			updated = true;
+		}
+		else {
+			// TODO: Need to check if response is 403/other ?
+		}
+		return updated;
+	}
+	
+	public boolean updateTask(Token token, Task task) {
+		boolean updated = false;
+		RequestParams params = new BasicRequestParams();
+		params.add("status", task.getStatus().toString());
+		params.add("description", task.getDescription());
+		ServiceResponse response = PutHelper.put(makeUrl(Link.TASKS) + "/" + task.getId(), EncodingTypes.UTF8, port, params, getAuthHeaders(token));
+		
+		if (response != null) {
+			if (response.getStatusCode() == HttpStatus.SC_OK) {
+				updated = true;
+			}
+			else {
+				// TODO error small time little chief
+			}
+		}
+		else {
+			// TODO error big time big chief
+		}
+		return updated;
 	}
 	
 	private Gson buildGson() {
@@ -314,22 +409,29 @@ public class RESTService {
 
 			JsonObject json = element.getAsJsonObject();
 			
+			if (!json.has("id") || !json.has("title")) {
+				return null;
+			}
+			
 			int id = json.get("id").getAsInt();
 			String title = json.get("title").getAsString();
-
-			JsonArray jStories = json.get("stories").getAsJsonArray();
+			
 			SortedSet<Story> stories = new TreeSet<Story>();
-			for (JsonElement elem : jStories) {
-				Story story = context.deserialize(elem, Story.class);
-				stories.add(story);
+			if (json.has("stories")) {
+				JsonArray jStories = json.get("stories").getAsJsonArray();
+				for (JsonElement elem : jStories) {
+					Story story = context.deserialize(elem, Story.class);
+					stories.add(story);
+				}
 			}
 		
-			
-			JsonArray jPeople = element.getAsJsonObject().get("team_members").getAsJsonArray();
 			SortedSet<Person> people = new TreeSet<Person>();
-			for (JsonElement e : jPeople) {
-				Person person = context.deserialize(e, Person.class);
-				people.add(person);
+			if (json.has("team_members")) {
+				JsonArray jPeople = element.getAsJsonObject().get("team_members").getAsJsonArray();
+				for (JsonElement e : jPeople) {
+					Person person = context.deserialize(e, Person.class);
+					people.add(person);
+				}
 			}
 			return new Project(id, title, stories, people);
 		}
@@ -355,16 +457,7 @@ public class RESTService {
 			int id = json.get("id").getAsInt();
 			String name = json.get("name").getAsString();
 			String email = json.get("email").getAsString();
-			Task task = null; //context.deserialize(element.getAsJsonObject().get("task"), Task.class);
-			
-			/*
-			 * Add a way of getting the task for a member...
-			 * 
-			 */
-			
-			
-			
-			
+			Task task = context.deserialize(element.getAsJsonObject().get("task"), Task.class);
 			return new Person(id, name, email, task);
 		}
 	}
@@ -373,28 +466,21 @@ public class RESTService {
 
 		public Task deserialize(JsonElement element, Type type, JsonDeserializationContext context) throws JsonParseException {
 			JsonObject json = element.getAsJsonObject();
-			int id = json.get("id").getAsInt();
+			
+			if (!json.has("id") || !json.has("description")) {
+				return null;
+			}
+			
+			int id = json.get("id").getAsInt();			
 			String description = json.get("description").getAsString();
-			String statusStr = json.get("status").getAsString();
-			Status status = getStatus(statusStr);
-			return new Task(id, description, status);
-		}
-		
-		private Status getStatus(String str) {
+			
 			Status status = null;
-			if (str.equals("started")) {
-				status = Status.STARTED;
+			if (json.has("status")) {
+				String statusStr = json.get("status").getAsString();
+				status = Status.fromString(statusStr);
+				Log.i("REST SERVICE", statusStr + ": " + description);
 			}
-			else if (str.equals("not_started")) {
-				status = Status.NOT_STARTED;
-			}
-			else if (str.equals("blocked")) {
-				status = Status.BLOCKED;
-			}
-			else if (str.equals("done")) {
-				status = Status.DONE;
-			}
-			return status;
+			return new Task(id, description, status);
 		}
 	}
 	
@@ -405,8 +491,9 @@ public class RESTService {
 			JsonObject json = element.getAsJsonObject();
 			int id = json.get("id").getAsInt();
 			String type = json.get("type").getAsString();
-			String apiKey = json.get("api_token").getAsString();
-			return new Account(id, type, apiKey);
+//			String apiKey = json.get("api_token").getAsString();
+			String email = json.get("email").getAsString();
+			return new Account(id, type, email);
 		}
 	}
 }

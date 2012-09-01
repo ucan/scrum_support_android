@@ -76,10 +76,9 @@ public class ProjectActivity extends ListActivity implements Observer {
     @Override
     public void onListItemClick(ListView l, View v, int position, long id) {
     	Log.i("PROJECT ACTIVITY", projectsAdapter.getItem(position).toString());
-    	Intent personIntent = new Intent(activity, PersonActivity.class);
+    	Intent personIntent = new Intent(activity, PeopleActivity.class);
     	personIntent.putExtra("android.scrum.support.ProjectActivity.PROJECT", projectsAdapter.getItem(position));
     	activity.startActivityForResult(personIntent, SHOW_PEOPLE);
-    	
     }
 
 	/**
@@ -120,7 +119,7 @@ public class ProjectActivity extends ListActivity implements Observer {
 
 		@Override
 		protected Boolean doInBackground(User...params) {
-			projects = ContentProvider.getInstance().getProjects();
+			projects = ContentProvider.getInstance().getAllProjects();
 			return true;
 		}
 
