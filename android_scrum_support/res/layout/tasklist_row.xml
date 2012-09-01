@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical" >
+    
+    <TextView android:id="@+id/task_description"
+         android:textSize="22sp"
+         android:textStyle="bold"
+         android:layout_width="match_parent"
+         android:layout_height="wrap_content"
+         android:paddingTop="4sp"
+         android:paddingBottom="1sp"/>
+    
+    <TextView android:id="@+id/task_status"
+         android:textSize="22sp"
+         android:textStyle="italic"
+         android:layout_width="match_parent"
+         android:layout_height="wrap_content"
+         android:paddingTop="1sp"
+         android:paddingLeft="5sp"
+         android:paddingBottom="4sp"/>
+</LinearLayout>
