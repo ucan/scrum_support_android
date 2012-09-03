@@ -275,19 +275,19 @@ public class RESTService {
 		}
 		else if (response.getStatusCode() == HttpStatus.SC_OK) {
 			JsonElement json = new JsonParser().parse(response.getResponseString());
-			
-			JsonArray jAccounts = json.getAsJsonObject().getAsJsonArray("accounts");
-			for (JsonElement jAccount : jAccounts) {
-				Account account = gson.fromJson(jAccount, Account.class);
-				if (account != null) {
-					user.addAccount(account);
+			if (json.isJsonObject() && json.getAsJsonObject().has("accounts")) {
+				JsonArray jAccounts = json.getAsJsonObject().getAsJsonArray("accounts");
+				for (JsonElement jAccount : jAccounts) {
+					Account account = gson.fromJson(jAccount, Account.class);
+					if (account != null) {
+						user.addAccount(account);
+					}
+					else {
+						Log.d("REST SERVICE", "getProjects: Error deserializing an account");
+					}
 				}
-				else {
-					Log.d("REST SERVICE", "getProjects: Error deserializing an account");
-				}
+				updated = true;
 			}
-			
-			updated = true;
 		}
 		else {
 			// TODO: Need to check if response is 403/other ?
