@@ -86,29 +86,32 @@ public class RESTService {
 	}
 	
 	public boolean updateLinks() {
+		boolean updated = false;
 		RequestParams params = new BasicRequestParams();
 		String host = ContentProvider.getInstance().getServerAddress().toString();
 		Log.i("REST SERVICE", host);
 		ServiceResponse response = Resting.get(host, port, params);
-		if(response == null) {
-			ErrorService.getInstance().raiseError(
-					new Error(context.getString(R.string.error_connection)));
+		if (response == null) {
+			ErrorService.getInstance().raiseError(new Error(context.getString(R.string.error_connection)));
 			Log.e("REST LINKS", "The REST Server was unavailable");
-			return false;
 		}
-		JsonElement json = new JsonParser().parse(response.getResponseString());
-		JsonObject jLinks = json.getAsJsonObject().getAsJsonObject("links");
-		for (Link link : Link.values()) {
-			if (jLinks.has(link.toString())) {
-				links.put(link, jLinks.get(link.toString()).getAsString());
-			}
-			else {
-				ErrorService.getInstance().raiseError(
-						new Error(context.getString(R.string.error_json_parse)));
-				return false; // TODO: Should raise error! Done?
+		else if (response.getStatusCode() == HttpStatus.SC_OK) {
+			JsonElement json = new JsonParser().parse(response.getResponseString());
+			if (json.isJsonObject() && json.getAsJsonObject().has("links")) {
+				JsonObject jLinks = json.getAsJsonObject().getAsJsonObject("links");
+				for (Link link : Link.values()) {
+					if (jLinks.has(link.toString())) {
+						links.put(link, jLinks.get(link.toString()).getAsString());
+					}
+					else {
+						ErrorService.getInstance().raiseError(new Error(context.getString(R.string.error_json_parse)));
+						return false; // TODO: Should raise error! Done?
+					}
+				}
+				updated = true;
 			}
 		}
-		return true;
+		return updated;
 	}
 	
 	/**
@@ -123,8 +126,7 @@ public class RESTService {
 		ServiceResponse response = Resting.get(makeUrl(Link.USER), port, params);
 		
 		if(response == null) {
-			ErrorService.getInstance().raiseError(
-					new Error(context.getString(R.string.error_connection)));
+			ErrorService.getInstance().raiseError(new Error(context.getString(R.string.error_connection)));
 			Log.e("USER", "The REST Server was unavailable");
 			return null;
 		}
@@ -142,8 +144,7 @@ public class RESTService {
 		params.add("password", user.getPassword());
 		ServiceResponse response = Resting.post(makeUrl(Link.USER), port, params);
 		if(response == null) {
-			ErrorService.getInstance().raiseError(
-					new Error(context.getString(R.string.error_connection)));
+			ErrorService.getInstance().raiseError(new Error(context.getString(R.string.error_connection)));
 			Log.e("USER", "The REST Server was unavailable");
 			return null;
 		}
@@ -159,32 +160,28 @@ public class RESTService {
 	 *  Returns JsonArray of Projects - {id: <id>, title: <title>} 
 	 */
 	public boolean fetchProjects(Token token, Account account) {
-		Log.d("REST SERVICE", "Fetching Projects for " + account);
-		
 		boolean updated = false;
-		
-		RequestParams params = new BasicRequestParams();
 		String url = makeUrl(Link.ACCOUNTS) + "/" + account.getId();
-		
-		ServiceResponse response = GetHelper.get(url, port, params, EncodingTypes.UTF8, getAuthHeaders(token));
+		ServiceResponse response = GetHelper.get(url, port, null, EncodingTypes.UTF8, getAuthHeaders(token));
 		if (response == null) {
 			ErrorService.getInstance().raiseError(new Error(context.getString(R.string.error_connection)));
 			Log.e("REST SERVICE", "The REST Server was unavailable");
 		}
 		else if (response.getStatusCode() == HttpStatus.SC_OK) {
 			JsonElement json = new JsonParser().parse(response.getResponseString());
-			
-			JsonArray jProjects = json.getAsJsonObject().getAsJsonArray("projects");
-			for (JsonElement jProject : jProjects) {
-				Project project = gson.fromJson(jProject, Project.class);
-				if (project != null) {
-					account.addProject(project);
+			if (json.isJsonObject() && json.getAsJsonObject().has("projects")) {
+				JsonArray jProjects = json.getAsJsonObject().getAsJsonArray("projects");
+				for (JsonElement jProject : jProjects) {
+					Project project = gson.fromJson(jProject, Project.class);
+					if (project != null) {
+						account.addProject(project);
+					}
+					else {
+						Log.d("REST SERVICE", "getProjects: Error deserializing a project");
+					}
 				}
-				else {
-					Log.d("REST SERVICE", "getProjects: Error deserializing a project");
-				}
+				updated = true;
 			}
-			updated = true;
 		}
 		else {
 			// TODO: Check other http status codes
@@ -228,7 +225,6 @@ public class RESTService {
 		params.add("email", email);
 		params.add("password", password);
 		return addAccount(token, params);
-		
 	}
 	
 	// Not currently supported by the api
@@ -248,7 +244,10 @@ public class RESTService {
 			return null;
 		}
 		else if (response.getStatusCode() == HttpStatus.SC_CREATED){
-			account = gson.fromJson(response.getResponseString(), Account.class);
+			JsonElement json = new JsonParser().parse(response.getResponseString());
+			if (json.isJsonObject() && json.getAsJsonObject().has("account")) {
+				account = gson.fromJson(json.getAsJsonObject().get("account"), Account.class);
+			}
 			if (account == null || account.getId() <= 0) {
 				//TODO: Raise error? Account not found
 				Log.e("REST SERVICE", response.getResponseString());
@@ -305,17 +304,19 @@ public class RESTService {
 		}
 		else if (response.getStatusCode() == HttpStatus.SC_OK) {
 			JsonElement json = new JsonParser().parse(response.getResponseString());
-			JsonArray jTasks = json.getAsJsonObject().getAsJsonArray("tasks");
-			for (JsonElement jTask : jTasks) {
-				Task task = gson.fromJson(jTask, Task.class);
-				if (task != null) {
-					story.addTask(task);
+			if (json.isJsonObject() && json.getAsJsonObject().has("tasks")) {
+				JsonArray jTasks = json.getAsJsonObject().getAsJsonArray("tasks");
+				for (JsonElement jTask : jTasks) {
+					Task task = gson.fromJson(jTask, Task.class);
+					if (task != null) {
+						story.addTask(task);
+					}
+					else {
+						Log.d("REST SERVICE", "getProjects: Error deserializing a task");
+					}
 				}
-				else {
-					Log.d("REST SERVICE", "getProjects: Error deserializing a task");
-				}
+				updated = true;
 			}
-			updated = true;
 		}
 		else {
 			// TODO: Need to check if response is 403/other ?
@@ -329,7 +330,6 @@ public class RESTService {
 		params.add("status", task.getStatus().toString());
 		params.add("description", task.getDescription());
 		ServiceResponse response = PutHelper.put(makeUrl(Link.TASKS) + "/" + task.getId(), EncodingTypes.UTF8, port, params, getAuthHeaders(token));
-		
 		if (response != null) {
 			if (response.getStatusCode() == HttpStatus.SC_OK) {
 				updated = true;
