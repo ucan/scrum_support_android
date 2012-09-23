@@ -9,6 +9,7 @@ public class Person implements Comparable<Person>, Parcelable {
 	private String name;
 	private String email;
 	private Task task;
+	private boolean me;
 	
 	
 	/**
@@ -22,6 +23,7 @@ public class Person implements Comparable<Person>, Parcelable {
 		this.name = name;
 		this.email = email;
 		this.task = task;
+		me = false;
 	}
 	
 	public int getId() {
@@ -44,6 +46,9 @@ public class Person implements Comparable<Person>, Parcelable {
 		return task;
 	}
 
+	public boolean hasTask() {
+		return task != null;
+	}
 	
 	public boolean equals(Object other) {
 		if (this == other) {
@@ -96,5 +101,13 @@ public class Person implements Comparable<Person>, Parcelable {
 		email = in.readString();
 		name = in.readString();
 		task = (Task)in.readValue(Task.class.getClassLoader());
+	}
+	
+	public boolean isMe() {
+		return name.contains("Jon");
+	}
+
+	public void setMe() {
+		me = true;		
 	}
 }

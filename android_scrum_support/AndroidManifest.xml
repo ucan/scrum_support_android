@@ -22,9 +22,9 @@
         <activity android:name=".TeamActivity"></activity>
         <activity android:name=".ProjectActivity"></activity>
         <activity android:name=".PeopleActivity"></activity>
-        <activity android:name=".StoryActivity"></activity>
-        <activity android:name=".TaskListActivity"></activity>
-        <activity android:name=".TaskViewActivity"></activity>
+        <activity android:name=".old.StoryActivity"></activity>
+        <activity android:name=".old.TaskListActivity"></activity>
+        <activity android:name=".old.TaskViewActivity"></activity>
         <activity android:theme="@android:style/Theme.Dialog" android:name=".PassConfirmActivity"></activity>
         <activity android:theme="@android:style/Theme.Dialog" android:name=".NewAccountActivity"></activity>
     </application>
