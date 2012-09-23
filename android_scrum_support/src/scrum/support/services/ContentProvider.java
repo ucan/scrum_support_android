@@ -8,7 +8,7 @@ import java.util.Set;
 import org.apache.http.HttpStatus;
 
 import scrum.support.model.Account;
-import scrum.support.model.Person;
+import scrum.support.model.TeamMember;
 import scrum.support.model.Project;
 import scrum.support.model.Story;
 import scrum.support.model.Task;
@@ -130,7 +130,7 @@ public class ContentProvider {
 		return rest.fetchTasks(user.getToken(), story);
 	}
 	
-	public boolean isUser(Project project, Person person) {
+	public boolean isUser(Project project, TeamMember person) {
 		return user.getAccountForProject(project.getId()).getEmail().equals(user.getEmail());
 	}
 	
@@ -141,7 +141,7 @@ public class ContentProvider {
 	 */
 	public Project updateProject(int projectId) {
 		// TODO: update account?
-		return rest.getProject(projectId, user.getToken());
+		return rest.fetchProject(user.getToken(), projectId);
 	}
 	
 	/**
@@ -174,7 +174,7 @@ public class ContentProvider {
 	}
 
 	public int addAccount(String type, String email,  String password) {
-		Account account = rest.addAccount(user.getToken(), type, email, password);
+		Account account = rest.createAccount(user.getToken(), type, email, password);
 		if (account != null) {
 			user.addAccount(account);
 			return account.getId();

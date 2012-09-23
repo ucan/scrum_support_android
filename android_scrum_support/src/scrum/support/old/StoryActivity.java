@@ -40,7 +40,7 @@ public class StoryActivity extends ListActivity implements Observer {
         Bundle extras = getIntent().getExtras();
         currentProject = (Project) extras.getParcelable("android.scrum.support.StoryActivity.PROJECT");
         activity = this;
-    	storyAdapter = new StoryAdapter(this, R.layout.story_row, R.id.story_title, new ArrayList<Story>(currentProject.getStories()));
+    	storyAdapter = new StoryAdapter(this, R.layout.story_row, R.id.story_title, new ArrayList<Story>(currentProject.getCurrentIteration().getStories()));
     	setContentView(R.layout.relative_listview);
         setListAdapter(storyAdapter);
         //updateStories();

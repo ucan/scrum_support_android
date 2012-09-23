@@ -3,7 +3,7 @@ package scrum.support.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-public class Person implements Comparable<Person>, Parcelable {
+public class TeamMember implements Comparable<TeamMember>, Parcelable {
 
 	private int id;
 	private String name;
@@ -18,7 +18,7 @@ public class Person implements Comparable<Person>, Parcelable {
 	 * @param email
 	 * @param task - Can be null
 	 */
-	public Person(int id, String name, String email, Task task) {
+	public TeamMember(int id, String name, String email, Task task) {
 		this.id = id;
 		this.name = name;
 		this.email = email;
@@ -54,10 +54,10 @@ public class Person implements Comparable<Person>, Parcelable {
 		if (this == other) {
 			return true;
 		}
-		if (!(other instanceof Person)) {
+		if (!(other instanceof TeamMember)) {
 			return false;
 		}
-		Person otherP = (Person)other;
+		TeamMember otherP = (TeamMember)other;
 		return otherP.id == this.id && otherP.email == this.email;
 	}
 	
@@ -71,7 +71,7 @@ public class Person implements Comparable<Person>, Parcelable {
 		return result;
 	}
 
-	public int compareTo(Person another) {
+	public int compareTo(TeamMember another) {
 		return name.compareTo(another.name);
 	}
 
@@ -86,17 +86,17 @@ public class Person implements Comparable<Person>, Parcelable {
 		dest.writeValue(task);
 	}
 	
-	public static final Parcelable.Creator<Person> CREATOR = new Parcelable.Creator<Person>() {
-		public Person createFromParcel(Parcel in) {
-		    return new Person(in);
+	public static final Parcelable.Creator<TeamMember> CREATOR = new Parcelable.Creator<TeamMember>() {
+		public TeamMember createFromParcel(Parcel in) {
+		    return new TeamMember(in);
 		}
 		
-		public Person[] newArray(int size) {
-		    return new Person[size];
+		public TeamMember[] newArray(int size) {
+		    return new TeamMember[size];
 		}
 	};
 	
-	private Person(Parcel in) {
+	private TeamMember(Parcel in) {
 		id = in.readInt();
 		email = in.readString();
 		name = in.readString();

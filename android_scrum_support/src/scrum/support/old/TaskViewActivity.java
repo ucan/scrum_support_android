@@ -6,7 +6,7 @@ import java.util.Observer;
 import scrum.support.R;
 import scrum.support.R.id;
 import scrum.support.R.layout;
-import scrum.support.model.Person;
+import scrum.support.model.TeamMember;
 import scrum.support.model.Project;
 import scrum.support.model.Task;
 import android.app.Activity;
@@ -23,7 +23,7 @@ public class TaskViewActivity extends Activity implements Observer {
 	
 	private Project currentProject;
 	private Task currentTask;
-	private Person person;
+	private TeamMember person;
 	private boolean isUser;
 	private Activity activity;
 	
@@ -35,7 +35,7 @@ public class TaskViewActivity extends Activity implements Observer {
 
         Bundle extras = getIntent().getExtras();
         currentProject = (Project) extras.getParcelable("android.scrum.support.TaskViewActivity.PROJECT");
-        person = (Person) extras.getParcelable("android.scrum.support.TaskViewActivity.PERSON");
+        person = (TeamMember) extras.getParcelable("android.scrum.support.TaskViewActivity.PERSON");
         currentTask = person.getTask();
         isUser = extras.getBoolean("android.scrum.support.TaskViewActivity.IS_USER");
         activity = this;

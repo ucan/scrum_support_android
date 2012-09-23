@@ -8,7 +8,7 @@ import java.util.Observer;
 import scrum.support.R;
 import scrum.support.R.id;
 import scrum.support.R.layout;
-import scrum.support.model.Person;
+import scrum.support.model.TeamMember;
 import scrum.support.model.Project;
 import scrum.support.model.Story;
 import scrum.support.model.Util.Status;
@@ -30,7 +30,7 @@ public class TaskSelector extends ListActivity implements Observer {
 	private Activity activity;
 	private StoryAdapter storyAdapter;
 	private Project currentProject;
-	private Person me;
+	private TeamMember me;
 	
 	@Override
     public void onCreate(Bundle savedInstanceState) {
@@ -40,9 +40,9 @@ public class TaskSelector extends ListActivity implements Observer {
 
         Bundle extras = getIntent().getExtras();
         currentProject = (Project) extras.getParcelable("android.scrum.support.StoryActivity.PROJECT");
-        me = (Person) extras.getParcelable("android.scrum.support.StoryActivity.ME");
+        me = (TeamMember) extras.getParcelable("android.scrum.support.StoryActivity.ME");
         activity = this;
-    	storyAdapter = new StoryAdapter(this, R.layout.story_row, R.id.story_title, new ArrayList<Story>(currentProject.getStories()));
+    	storyAdapter = new StoryAdapter(this, R.layout.story_row, R.id.story_title, new ArrayList<Story>(currentProject.getCurrentIteration().getStories()));
     	setContentView(R.layout.relative_listview);
         setListAdapter(storyAdapter);
         //updateStories();

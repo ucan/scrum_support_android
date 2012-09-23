@@ -2,7 +2,6 @@ package scrum.support.model;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -11,83 +10,86 @@ import android.os.Parcelable;
 
 public class Project implements Parcelable {
 	private int id;
+	private int currentIterationId;
 	private String title;
-	private SortedSet<Story> stories;
-	private SortedSet<Person> people;
+	private SortedSet<Iteration> iterations;
+	private SortedSet<TeamMember> teamMembers;
 	
-	public Project(int id, String title) {
-		this(id, title, new TreeSet<Story>(), new TreeSet<Person>());
+	public Project(int id, int currentIterationId, String title) {
+		this(id, currentIterationId, title, new TreeSet<Iteration>(), new TreeSet<TeamMember>());
 	}
 	
-	public Project(int id, String title, SortedSet<Story> stories, SortedSet<Person> people) {
+	public Project(int id, int currentIterationId, String title, SortedSet<Iteration> iterations, SortedSet<TeamMember> teamMembers) {
 		this.id = id;
+		this.currentIterationId = currentIterationId;
 		this.title = title;
-		this.stories = stories;
-		this.people = people;
+		this.iterations = iterations;
+		this.teamMembers = teamMembers;
 	}
 	
 	public int getId() {
 		return id;
 	}
 	
+	public Iteration getCurrentIteration() {
+		for (Iteration iteration : iterations) {
+			if (iteration.getId() == currentIterationId) {
+				return iteration;
+			}
+		}
+		return null;
+	}
+	
 	public void setTitle(String title) {
 		this.title = title;
 	}
 	
-	public boolean addPerson(Person person) {
-		if (person != null) {
-			return people.add(person);
+	public boolean addTeamMember(TeamMember member) {
+		if (member != null) {
+			return teamMembers.add(member);
 		}
 		return false;
 	}
 	
-	public boolean removePerson(Person person) {
-		if (person != null) {
-			return people.remove(person);
+	public boolean removeTeamMember(TeamMember member) {
+		if (member != null) {
+			return teamMembers.remove(member);
 		}
 		return false;
 	}
 	
-	public SortedSet<Person> getPeople() {
-		return Collections.unmodifiableSortedSet(people);
+	public SortedSet<TeamMember> getTeamMembers() {
+		return Collections.unmodifiableSortedSet(teamMembers);
 	}
 	
-	public void setPeople(SortedSet<Person> people) {
-		this.people = people;
+	public void setTeamMembers(SortedSet<TeamMember> teamMembers) {
+		this.teamMembers = teamMembers;
 	}
 	
-	public boolean addStory(Story story) {
-		if (story != null) {
-			return stories.add(story);
+	public boolean addIteration(Iteration iteration) {
+		if (iteration != null) {
+			return iterations.add(iteration);
 		}
 		return false;
 	}
 	
-	public boolean removeStory(Story story) {
-		if (story != null) {
-			return stories.remove(story);
+	public boolean removeIteration(Iteration iteration) {
+		if (iteration != null) {
+			return iterations.remove(iteration);
 		}
 		return false;
 	}
 	
-	public SortedSet<Story> getStories() {
-		return Collections.unmodifiableSortedSet(stories);
+	public SortedSet<Iteration> getIterations() {
+		return Collections.unmodifiableSortedSet(iterations);
 	}
 	
-	public void setStories(SortedSet<Story> stories) {
-		this.stories = stories;
+	public void setIterations(SortedSet<Iteration> iterations) {
+		this.iterations = iterations;
 	}
 	
 	public String getTitle() {
 		return title;
-	}
-	
-	public List<Task> getAllTasks() {
-		List<Task> tasks = new ArrayList<Task>();
-		for (Story story : stories) {
-			tasks.addAll(story.getTasks());
-		}
-		return tasks;
 	}
 	
 	public String toString() {
@@ -101,8 +103,8 @@ public class Project implements Parcelable {
 	public void writeToParcel(Parcel dest, int flags) {
 		dest.writeInt(id);
 		dest.writeString(title);
-		dest.writeTypedList(new ArrayList<Story>(stories));
-		dest.writeTypedList(new ArrayList<Person>(people));
+		dest.writeTypedList(new ArrayList<Iteration>(iterations));
+		dest.writeTypedList(new ArrayList<TeamMember>(teamMembers));
 	}
 	
 	public static final Parcelable.Creator<Project> CREATOR = new Parcelable.Creator<Project>() {
@@ -118,7 +120,7 @@ public class Project implements Parcelable {
 	private Project(Parcel in) {
 		id = in.readInt();
 		title = in.readString();
-		stories = new TreeSet<Story>(in.createTypedArrayList(Story.CREATOR));
-		people = new TreeSet<Person>(in.createTypedArrayList(Person.CREATOR));
+		iterations = new TreeSet<Iteration>(in.createTypedArrayList(Iteration.CREATOR));
+		teamMembers = new TreeSet<TeamMember>(in.createTypedArrayList(TeamMember.CREATOR));
 	}
 }

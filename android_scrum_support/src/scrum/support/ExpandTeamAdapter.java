@@ -3,7 +3,7 @@ package scrum.support;
 import java.util.ArrayList;
 import java.util.SortedSet;
 
-import scrum.support.model.Person;
+import scrum.support.model.TeamMember;
 import scrum.support.model.Project;
 import scrum.support.model.Task;
 import scrum.support.old.StoryActivity;
@@ -24,17 +24,17 @@ import android.widget.TextView;
 public class ExpandTeamAdapter extends BaseExpandableListAdapter {
 	
 	private Activity activity;
-	private ArrayList<Person> team;
+	private ArrayList<TeamMember> team;
 	private Project project;
 	
 	public ExpandTeamAdapter(Activity activity, Project project) {
 		this.activity = activity;
-		this.team = new ArrayList<Person>();
+		this.team = new ArrayList<TeamMember>();
 	}
 		
-	public void addTeam(SortedSet<Person> teammembers) {
+	public void addTeam(SortedSet<TeamMember> teammembers) {
 		team.clear();
-		for(Person person : teammembers) {
+		for(TeamMember person : teammembers) {
 			if(person.isMe()) {
 				team.add(0, person); 
 			} else { 
@@ -63,7 +63,7 @@ public class ExpandTeamAdapter extends BaseExpandableListAdapter {
 			View convertView, ViewGroup parent) {
 
         LayoutInflater infalInflater = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        Person person = team.get(personIndex);
+        TeamMember person = team.get(personIndex);
 		if(person.isMe()) {
 			if(person.hasTask()) {
 				convertView = infalInflater.inflate(R.layout.me_expanded_task, null);	
@@ -93,7 +93,7 @@ public class ExpandTeamAdapter extends BaseExpandableListAdapter {
         return convertView;
 	}
 
-	private OnClickListener changeTaskListener(final Person person) {
+	private OnClickListener changeTaskListener(final TeamMember person) {
 		return new OnClickListener() {		
 
 			public void onClick(View arg0) {
@@ -128,7 +128,7 @@ public class ExpandTeamAdapter extends BaseExpandableListAdapter {
 	public View getGroupView(int personIndex, boolean isLastChild, View view,
             ViewGroup parent) {
 		
-		Person person = (Person) getGroup(personIndex);
+		TeamMember person = (TeamMember) getGroup(personIndex);
 		
         if (view == null) {		
             LayoutInflater inf = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);		

@@ -7,7 +7,7 @@ import java.util.Observer;
 import java.util.Random;
 
 import scrum.support.model.Account;
-import scrum.support.model.Person;
+import scrum.support.model.TeamMember;
 import scrum.support.model.Project;
 import scrum.support.model.Task;
 import scrum.support.model.User;
@@ -87,7 +87,7 @@ public class PeopleActivity extends ExpandableListActivity  implements Observer 
     	activity.startActivityForResult(storyIntent, 0);
     }
     
-    private void startTaskViewIntent(Person person, boolean isUser) {
+    private void startTaskViewIntent(TeamMember person, boolean isUser) {
     	Intent taskViewIntent = new Intent(activity, TaskViewActivity.class);
     	taskViewIntent.putExtra("android.scrum.support.TaskViewActivity.PROJECT", currentProject);
     	taskViewIntent.putExtra("android.scrum.support.TaskViewActivity.PERSON", person);
@@ -124,10 +124,10 @@ public class PeopleActivity extends ExpandableListActivity  implements Observer 
 	     protected void onPostExecute(Boolean result) {
 	    	 if(result != null) {
 	    		 if(result) {
-	    			 teamAdapter.addTeam(currentProject.getPeople());
+	    			 teamAdapter.addTeam(currentProject.getTeamMembers());
 	    			 teamAdapter.notifyDataSetChanged();
 	    			 setProgressBarIndeterminateVisibility(false);
-	    			 Log.d("PERSON ACTIVITY", "projects size = " + currentProject.getPeople().size());
+	    			 Log.d("PERSON ACTIVITY", "projects size = " + currentProject.getTeamMembers().size());
 		    	 }
 	    	 } else {
 	    		 

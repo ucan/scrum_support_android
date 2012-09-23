@@ -12,9 +12,9 @@ public class Account {
 	private String type;
 	private String email;
 	private List<Project> projects = new ArrayList<Project>();
-	private Person teamMember;
+	private TeamMember teamMember;
 	
-	public Account(int id, String type, String email, Person teamMember) {
+	public Account(int id, String type, String email, TeamMember teamMember) {
 		this.id = id;
 //		this.apiKey = apiKey;
 		this.type = type;
@@ -42,7 +42,7 @@ public class Account {
 		return email;
 	}
 	
-	public Person getTeamMember() {
+	public TeamMember getTeamMember() {
 		return teamMember;
 	}
 	
