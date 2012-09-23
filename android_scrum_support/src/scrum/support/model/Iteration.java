@@ -8,7 +8,7 @@ import java.util.TreeSet;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-public class Iteration  implements Parcelable {
+public class Iteration implements Comparable<Iteration>, Parcelable {
 	
 	private int id;
 	private long startDate;
@@ -65,10 +65,14 @@ public class Iteration  implements Parcelable {
 	
 	@Override
 	public int hashCode() {
-		int result = 7;
-		result = 21 * result + id;
-		result = 21 * result + stories.hashCode();
+		int result = 13;
+		result = 5 * result + id;
+		result = 5 * result + stories.hashCode();
 		return result;
+	}
+	
+	public int compareTo(Iteration another) {
+		return ((Integer)id).compareTo(another.id); //TODO: Maybe need to sort by project?
 	}
 	
 	public int describeContents() {
@@ -98,5 +102,4 @@ public class Iteration  implements Parcelable {
 		endDate = in.readLong();
 		stories = new TreeSet<Story>(in.createTypedArrayList(Story.CREATOR));
 	}
-	
 }

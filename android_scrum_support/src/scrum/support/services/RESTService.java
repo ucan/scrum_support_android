@@ -447,11 +447,9 @@ public class RESTService {
 		
 		public Account deserialize(JsonElement element, Type t, JsonDeserializationContext context) throws JsonParseException {
 			JsonObject json = element.getAsJsonObject();
-			
 			if (!json.has("id") || !json.has("type") || !json.has("email") || !json.has("team_member")) {
 				throw new JsonParseException("Not a valid Account element");
 			}
-			
 			int id = json.get("id").getAsInt();
 			String type = json.get("type").getAsString();
 			String email = json.get("email").getAsString();
@@ -463,32 +461,29 @@ public class RESTService {
 	private class ProjectDeserializer implements JsonDeserializer<Project> {
 
 		public Project deserialize(JsonElement element, Type type, JsonDeserializationContext context) throws JsonParseException {
-
 			JsonObject json = element.getAsJsonObject();
-			
 			if (!json.has("id") || !json.has("title") || !json.has("current_iteration_id")) {
 				throw new JsonParseException("Not a valid Project element");
 			}
-			
 			int id = json.get("id").getAsInt();
 			int currentIterationId = json.get("current_iteration_id").getAsInt();
 			String title = json.get("title").getAsString();
+			
+			SortedSet<TeamMember> teamMembers = new TreeSet<TeamMember>();
+			if (json.has("team_members")) {
+				JsonArray jTeamMembers = json.get("team_members").getAsJsonArray();
+				for (JsonElement e : jTeamMembers) {
+					TeamMember member = context.deserialize(e, TeamMember.class);
+					teamMembers.add(member);
+				}
+			}
 			
 			SortedSet<Iteration> iterations = new TreeSet<Iteration>();  // TODO: Sort by start date
 			if (json.has("iterations")) {
 				JsonArray jIterations = json.get("iterations").getAsJsonArray();
 				for (JsonElement elem : jIterations) {
-//					Iteration iteration = context.deserialize(elem, Iteration.class);
-//					iterations.add(iteration);
-				}
-			}
-		
-			SortedSet<TeamMember> teamMembers = new TreeSet<TeamMember>();
-			if (json.has("team_members")) {
-				JsonArray jTeamMembers = element.getAsJsonObject().get("team_members").getAsJsonArray();
-				for (JsonElement e : jTeamMembers) {
-					TeamMember member = context.deserialize(e, TeamMember.class);
-					teamMembers.add(member);
+					Iteration iteration = context.deserialize(elem, Iteration.class);
+					iterations.add(iteration);
 				}
 			}
 			return new Project(id, currentIterationId, title, iterations, teamMembers);
