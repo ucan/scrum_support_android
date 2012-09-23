@@ -42,7 +42,7 @@ public class ContentProvider {
 	 */
 	private ContentProvider() {
 		try {
-			baseURL =  new URL("http://132.181.15.122/");
+			baseURL =  new URL("http://132.181.15.152/");
 		} catch (MalformedURLException e) {
 			e.printStackTrace();
 		}

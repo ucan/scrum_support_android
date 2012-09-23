@@ -12,12 +12,14 @@ public class Account {
 	private String type;
 	private String email;
 	private List<Project> projects = new ArrayList<Project>();
+	private Person teamMember;
 	
-	public Account(int id, String type, String email) {
+	public Account(int id, String type, String email, Person teamMember) {
 		this.id = id;
 //		this.apiKey = apiKey;
 		this.type = type;
 		this.email = email;
+		this.teamMember = teamMember;
 	}
 	
 	public int getId() {
@@ -38,6 +40,10 @@ public class Account {
 	
 	public String getEmail() {
 		return email;
+	}
+	
+	public Person getTeamMember() {
+		return teamMember;
 	}
 	
 	public boolean addProject(Project p) {   // TODO: Need to check if this is updating an existing project/creating a new one

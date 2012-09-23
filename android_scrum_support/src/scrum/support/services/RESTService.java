@@ -63,6 +63,7 @@ public class RESTService {
 		USER("user"),
 		ACCOUNTS("accounts"),
 		PROJECTS("projects"),
+		ITERATIONS("iterations"),
 		STORIES("stories"),
 		TASKS("tasks");
 		
@@ -114,6 +115,8 @@ public class RESTService {
 		return updated;
 	}
 	
+	
+	// MANAGE USERS
 	/**
 	 * Authenticate a pre-registered user
 	 * @param user
@@ -151,6 +154,99 @@ public class RESTService {
 		return response;
 	}
 
+	
+	//MANAGE ACCOUNTS
+	/**
+	 * Add a new account
+	 * @param token - The users ScrumSupport api token
+	 * @param type - The type of account (e.g. ptAccount)
+	 * @param email - Login credentials for the new account
+	 * @param password - Login credentials for the new account
+	 * @return - the new account if successfully added, otherwise null
+	 */
+	public Account addAccount(Token token, String type, String email, String password) {
+		Log.d("REST SERVICE", "Adding Account of type: " + type);
+		RequestParams params = new BasicRequestParams();
+		params.add("type", type);
+		params.add("email", email);
+		params.add("password", password);
+		return addAccount(token, params);
+	}
+	
+	// Not currently supported by the api
+//	public Account addAccount(Token token, String type, String accountToken) {
+//		RequestParams params = new BasicRequestParams();
+//		params.add("type", type);
+//		params.add("api_token", accountToken);
+//		return addAccount(token, params);
+//	}
+	
+	private Account addAccount(Token token, RequestParams params) {
+		Account account = null;
+		ServiceResponse response = PostHelper.post(makeUrl(Link.ACCOUNTS), port, EncodingTypes.UTF8, params, getAuthHeaders(token));
+		if(response == null) {
+			ErrorService.getInstance().raiseError(new Error(context.getString(R.string.error_connection)));
+			Log.e("REST SERVICE", "The REST Server was unavailable");
+			return null;
+		}
+		else if (response.getStatusCode() == HttpStatus.SC_CREATED){
+			JsonElement json = new JsonParser().parse(response.getResponseString());
+			if (json.isJsonObject() && json.getAsJsonObject().has("account")) {
+				account = gson.fromJson(json.getAsJsonObject().get("account"), Account.class);
+			}
+			if (account == null || account.getId() <= 0) {
+				//TODO: Raise error? Account not found
+				Log.e("REST SERVICE", response.getResponseString());
+				Log.i("REST SERVICE", "Returning new account with id: " + account.getId());
+				return null;
+			}
+		}
+		else {
+			//TODO: Check forbidden if account already exists (TODO on server also!)
+			//TODO: Check bad request if parameters invalid
+			//TODO: Check unauthorized if auth token doesn't match account on server
+			ErrorService.getInstance().raiseError(new Error(context.getString(R.string.error_add_account)));  // TODO this doesn't seem to do anything...Dave?
+			Log.i("REST SERVICE", "Ouch...something or someone fucked up " + (account == null));
+		}
+		return account;
+	}
+	
+	/**
+	 * Fetches account list from the server, and updates users accounts
+	 * @param user
+	 * @return
+	 */
+	public boolean fetchAccounts(User user) {
+		boolean updated = false;
+		ServiceResponse response = GetHelper.get(makeUrl(Link.ACCOUNTS), port, null, EncodingTypes.UTF8, getAuthHeaders(user.getToken()));
+		if (response == null) {
+			ErrorService.getInstance().raiseError(new Error(context.getString(R.string.error_connection)));
+			Log.e("REST SERVICE", "The REST Server was unavailable");
+		}
+		else if (response.getStatusCode() == HttpStatus.SC_OK) {
+			// TODO: clear all user accounts
+			JsonElement json = new JsonParser().parse(response.getResponseString());
+			if (json.isJsonObject() && json.getAsJsonObject().has("accounts")) {
+				JsonArray jAccounts = json.getAsJsonObject().getAsJsonArray("accounts");
+				for (JsonElement jAccount : jAccounts) {
+					Account account = gson.fromJson(jAccount, Account.class);
+					if (account != null) {
+						user.addAccount(account);
+					}
+					else {
+						Log.d("REST SERVICE", "getProjects: Error deserializing an account");
+					}
+				}
+				updated = true;
+			}
+		}
+		else {
+			// TODO: Need to check if response is 403/other ?
+		}
+		return updated;
+	}
+	
+	//MANAGE PROJECTS
 	/**
 	 * Get all of the projects related to a users token
 	 * @param token
@@ -218,81 +314,7 @@ public class RESTService {
 		return project;
 	}
 	
-	public Account addAccount(Token token, String type, String email, String password) {
-		Log.d("REST SERVICE", "Adding Account of type: " + type);
-		RequestParams params = new BasicRequestParams();
-		params.add("type", type);
-		params.add("email", email);
-		params.add("password", password);
-		return addAccount(token, params);
-	}
 	
-	// Not currently supported by the api
-//	public Account addAccount(Token token, String type, String accountToken) {
-//		RequestParams params = new BasicRequestParams();
-//		params.add("type", type);
-//		params.add("api_token", accountToken);
-//		return addAccount(token, params);
-//	}
-	
-	private Account addAccount(Token token, RequestParams params) {
-		Account account = null;
-		ServiceResponse response = PostHelper.post(makeUrl(Link.ACCOUNTS), port, EncodingTypes.UTF8, params, getAuthHeaders(token));
-		if(response == null) {
-			ErrorService.getInstance().raiseError(new Error(context.getString(R.string.error_connection)));
-			Log.e("REST SERVICE", "The REST Server was unavailable");
-			return null;
-		}
-		else if (response.getStatusCode() == HttpStatus.SC_CREATED){
-			JsonElement json = new JsonParser().parse(response.getResponseString());
-			if (json.isJsonObject() && json.getAsJsonObject().has("account")) {
-				account = gson.fromJson(json.getAsJsonObject().get("account"), Account.class);
-			}
-			if (account == null || account.getId() <= 0) {
-				//TODO: Raise error? Account not found
-				Log.e("REST SERVICE", response.getResponseString());
-				Log.i("REST SERVICE", "Returning new account with id: " + account.getId());
-				return null;
-			}
-		}
-		else {
-			//TODO: Check forbidden if account already exists (TODO on server also!)
-			//TODO: Check bad request if parameters invalid
-			//TODO: Check unauthorized if auth token doesn't match account on server
-			ErrorService.getInstance().raiseError(new Error(context.getString(R.string.error_add_account)));  // TODO this doesn't seem to do anything...Dave?
-			Log.i("REST SERVICE", "Ouch...something or someone fucked up " + (account == null));
-		}
-		return account;
-	}
-	
-	public boolean fetchAccounts(User user) {
-		boolean updated = false;
-		ServiceResponse response = GetHelper.get(makeUrl(Link.ACCOUNTS), port, null, EncodingTypes.UTF8, getAuthHeaders(user.getToken()));
-		if (response == null) {
-			ErrorService.getInstance().raiseError(new Error(context.getString(R.string.error_connection)));
-			Log.e("REST SERVICE", "The REST Server was unavailable");
-		}
-		else if (response.getStatusCode() == HttpStatus.SC_OK) {
-			JsonElement json = new JsonParser().parse(response.getResponseString());
-			if (json.isJsonObject() && json.getAsJsonObject().has("accounts")) {
-				JsonArray jAccounts = json.getAsJsonObject().getAsJsonArray("accounts");
-				for (JsonElement jAccount : jAccounts) {
-					Account account = gson.fromJson(jAccount, Account.class);
-					if (account != null) {
-						user.addAccount(account);
-					}
-					else {
-						Log.d("REST SERVICE", "getProjects: Error deserializing an account");
-					}
-				}
-				updated = true;
-			}
-		}
-		else {
-			// TODO: Need to check if response is 403/other ?
-		}
-		return updated;
-	}
 	
 	public boolean fetchTasks(Token token, Story story) {
 		boolean updated = false;
@@ -404,8 +426,7 @@ public class RESTService {
 	
 	private class ProjectDeserializer implements JsonDeserializer<Project> {
 
-		public Project deserialize(JsonElement element, Type type, JsonDeserializationContext context) 
-				throws JsonParseException {
+		public Project deserialize(JsonElement element, Type type, JsonDeserializationContext context) throws JsonParseException {
 
 			JsonObject json = element.getAsJsonObject();
 			
@@ -457,7 +478,7 @@ public class RESTService {
 			int id = json.get("id").getAsInt();
 			String name = json.get("name").getAsString();
 			String email = json.get("email").getAsString();
-			Task task = context.deserialize(element.getAsJsonObject().get("task"), Task.class);
+			Task task = context.deserialize(json.get("task"), Task.class);
 			return new Person(id, name, email, task);
 		}
 	}
@@ -486,14 +507,17 @@ public class RESTService {
 	
 	private class AccountDeserializer implements JsonDeserializer<Account> {
 		
-		public Account deserialize(JsonElement element, Type t, JsonDeserializationContext context) 
-				throws JsonParseException {
+		public Account deserialize(JsonElement element, Type t, JsonDeserializationContext context) throws JsonParseException {
 			JsonObject json = element.getAsJsonObject();
+			
+			if (!json.has("id") || !json.has("type") || !json.has("email") || !json.has("team_member")) {
+				throw new JsonParseException("Not a valid Account element");
+			}
 			int id = json.get("id").getAsInt();
 			String type = json.get("type").getAsString();
-//			String apiKey = json.get("api_token").getAsString();
 			String email = json.get("email").getAsString();
-			return new Account(id, type, email);
+			Person teamMember = context.deserialize(json.get("team_member"), Person.class);
+			return new Account(id, type, email, teamMember);
 		}
 	}
 }
