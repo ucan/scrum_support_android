@@ -1,10 +1,13 @@
-package scrum.support;
+package scrum.support.old;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 
+import scrum.support.R;
+import scrum.support.R.id;
+import scrum.support.R.layout;
 import scrum.support.model.Project;
 import scrum.support.model.Story;
 import scrum.support.model.Util.Status;

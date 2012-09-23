@@ -12,10 +12,13 @@ import scrum.support.model.Project;
 import scrum.support.model.Task;
 import scrum.support.model.User;
 import scrum.support.model.Util.Status;
+import scrum.support.old.StoryActivity;
+import scrum.support.old.TaskViewActivity;
 import scrum.support.services.ContentProvider;
 import scrum.support.services.ErrorService;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ExpandableListActivity;
 import android.app.ListActivity;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -31,10 +34,10 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 
-public class PeopleActivity extends ListActivity implements Observer {
+public class PeopleActivity extends ExpandableListActivity  implements Observer {
 
 	private PersonThread personThread;
-	private PersonAdapter personAdapter;
+	private ExpandTeamAdapter teamAdapter;
 	private Project currentProject;
 	private Activity activity;
 	
@@ -47,12 +50,12 @@ public class PeopleActivity extends ListActivity implements Observer {
         Bundle extras = getIntent().getExtras();
         currentProject = (Project) extras.getParcelable("android.scrum.support.ProjectActivity.PROJECT");
         activity = this;
-    	personAdapter = new PersonAdapter(this, R.layout.person_row, R.id.person_name, new ArrayList<Person>());
-    	setContentView(R.layout.relative_listview);
-        setListAdapter(personAdapter);
+    	
+    	teamAdapter = new ExpandTeamAdapter(this, currentProject);
+        setListAdapter(teamAdapter);
         updatePeople();
     }
-    
+    /*
     @Override
     public void onListItemClick(ListView l, View v, int position, long id) {
     	Person person = personAdapter.getItem(position);
@@ -76,7 +79,7 @@ public class PeopleActivity extends ListActivity implements Observer {
 //    		ContentProvider.getInstance().updateTask(task);
 //    	}
     }
-    
+    */
     private void startStoryIntent() {
 		Log.i("PERSON ACTIVITY", "StartStoryIntent");
 		Intent storyIntent = new Intent(activity, StoryActivity.class);
@@ -121,20 +124,8 @@ public class PeopleActivity extends ListActivity implements Observer {
 	     protected void onPostExecute(Boolean result) {
 	    	 if(result != null) {
 	    		 if(result) {
-	    			 personAdapter.clear();
-	    			 User user = ContentProvider.getInstance().getUser();
-	    			 Account account = user.getAccountForProject(currentProject.getId());
-	    			 
-	    			 // Put the user first in the list
-	    			 for (Person person : currentProject.getPeople()) {
-	    				 if (person.getEmail().equals(account.getEmail())) {
-	    					 personAdapter.insert(person, 0);
-	    				 }
-	    				 else {
-	    					 personAdapter.add(person);
-	    				 }
-	    			 }
-	    			 personAdapter.notifyDataSetChanged();
+	    			 teamAdapter.addTeam(currentProject.getPeople());
+	    			 teamAdapter.notifyDataSetChanged();
 	    			 setProgressBarIndeterminateVisibility(false);
 	    			 Log.d("PERSON ACTIVITY", "projects size = " + currentProject.getPeople().size());
 		    	 }
@@ -157,33 +148,6 @@ public class PeopleActivity extends ListActivity implements Observer {
 	    	 }
 		}
 	 }
-
-	private class PersonAdapter extends ArrayAdapter<Person> {
-		
-		public PersonAdapter(Context context, int resource,	int textViewResourceId, List<Person> people) {
-			super(context, resource, textViewResourceId, people);
-		}
-		
-		@Override
-		public View getView (int position, View convertView, ViewGroup parent) {
-			Person person = this.getItem(position);
-			View personRow = View.inflate(getContext(), R.layout.person_row, null);
-			if (personRow != null) {
-				TextView personName = (TextView) personRow.findViewById(R.id.person_name);
-				if(personName != null) {
-					personName.setText(person.getName());
-				}
-				TextView personTask = (TextView) personRow.findViewById(R.id.person_task);
-				if(personTask != null) {
-					Task task = person.getTask();
-					String taskLabel = (task == null) ? activity.getString(R.string.noTask) : task.getDescription();
-					personTask.setText(taskLabel);
-				}
-			}
-			return personRow;
-		}
-		
-	}
 }
 
 

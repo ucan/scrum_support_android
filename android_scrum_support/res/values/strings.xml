@@ -37,10 +37,17 @@
 	<!-- ProjectActivity -->
 	<string name="add_account">Add Account</string>
 	<string name="no_accounts_text">Select Add Account from the menu to link a new account</string>
-	
+		
 	<!-- PersonActivity -->
 	<string name="noTask">No Current Task</string>
+	<string name="meNoTask">You do not have a current task selected.</string>
+	<string name="selectTaskButton">Select a Task</string>
+	<string name="currentTaskLbl">Current Task: </string>
 	
+	<!-- Colors -->
+	<color name="Black">#000000</color>
+	<color name="ExpandTaskBackground">#FFAFABAB</color>
+	<color name="ExpandPersonBackground">#FF7C7C7C</color>
 </resources>
 
 
