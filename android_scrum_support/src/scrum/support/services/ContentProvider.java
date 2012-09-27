@@ -42,7 +42,7 @@ public class ContentProvider {
 	 */
 	private ContentProvider() {
 		try {
-			baseURL =  new URL("http://132.181.15.152/");
+			baseURL =  new URL("http://132.181.61.39/");
 		} catch (MalformedURLException e) {
 			e.printStackTrace();
 		}
@@ -142,6 +142,15 @@ public class ContentProvider {
 	public Project updateProject(int projectId) {
 		// TODO: update account?
 		return rest.fetchProject(user.getToken(), projectId);
+	}
+	
+	
+	/**
+	 * Testing needed
+	 * @param project
+	 */
+	public boolean getCurrentStories(Project project) {
+		 return rest.fetchStories(user.getToken(), project.getCurrentIteration());
 	}
 	
 	/**

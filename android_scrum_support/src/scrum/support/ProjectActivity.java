@@ -77,7 +77,8 @@ public class ProjectActivity extends ListActivity implements Observer {
     public void onListItemClick(ListView l, View v, int position, long id) {
     	Log.i("PROJECT ACTIVITY", projectsAdapter.getItem(position).toString());
     	Intent personIntent = new Intent(activity, PeopleActivity.class);
-    	personIntent.putExtra("android.scrum.support.ProjectActivity.PROJECT", projectsAdapter.getItem(position));
+    	Project currentProject = projectsAdapter.getItem(position);
+     	personIntent.putExtra("android.scrum.support.ProjectActivity.PROJECT", currentProject);
     	activity.startActivityForResult(personIntent, SHOW_PEOPLE);
     }
 

@@ -8,10 +8,15 @@ import scrum.support.model.Project;
 import scrum.support.model.Task;
 import scrum.support.old.StoryActivity;
 import scrum.support.old.TaskViewActivity;
+import scrum.support.services.ContentProvider;
+import scrum.support.services.ErrorService;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -27,14 +32,15 @@ public class ExpandTeamAdapter extends BaseExpandableListAdapter {
 	private ArrayList<TeamMember> team;
 	private Project project;
 	
-	public ExpandTeamAdapter(Activity activity, Project project) {
+	public ExpandTeamAdapter(Activity activity) {
 		this.activity = activity;
 		this.team = new ArrayList<TeamMember>();
 	}
 		
-	public void addTeam(SortedSet<TeamMember> teammembers) {
+	public void addTeam(Project project) {
+		this.project = project;
 		team.clear();
-		for(TeamMember person : teammembers) {
+		for(TeamMember person : project.getTeamMembers()) {
 			if(person.isMe()) {
 				team.add(0, person); 
 			} else { 
@@ -83,8 +89,6 @@ public class ExpandTeamAdapter extends BaseExpandableListAdapter {
 	
 	        TextView tv = (TextView) convertView.findViewById(R.id.personTaskDescription);
 	        tv.setText("Current Task: " + task.toString());
-	        	// Tag is not used yet
-	        	// tv.setTag(task.getTag());
 		      // TODO: Make If statement more robust so it can be used instead of recreating the view each time
         } else {//if (convertView == null  || !(convertView instanceof RelativeLayout)) {
             convertView = infalInflater.inflate(R.layout.expand_person_task_empty, null);
@@ -97,7 +101,7 @@ public class ExpandTeamAdapter extends BaseExpandableListAdapter {
 		return new OnClickListener() {		
 
 			public void onClick(View arg0) {
-				Intent storyIntent = new Intent(activity, StoryActivity.class);
+				Intent storyIntent = new Intent(activity, TaskSelector.class);
 		    	storyIntent.putExtra("android.scrum.support.TaskSelector.PROJECT", project);
 		    	storyIntent.putExtra("android.scrum.support.TaskSelector.ME", person);
 		    	activity.startActivityForResult(storyIntent, 0);				

@@ -51,7 +51,7 @@ public class PeopleActivity extends ExpandableListActivity  implements Observer 
         currentProject = (Project) extras.getParcelable("android.scrum.support.ProjectActivity.PROJECT");
         activity = this;
     	
-    	teamAdapter = new ExpandTeamAdapter(this, currentProject);
+    	teamAdapter = new ExpandTeamAdapter(this);
         setListAdapter(teamAdapter);
         updatePeople();
     }
@@ -80,7 +80,7 @@ public class PeopleActivity extends ExpandableListActivity  implements Observer 
 //    	}
     }
     */
-    private void startStoryIntent() {
+/*    private void startStoryIntent() {
 		Log.i("PERSON ACTIVITY", "StartStoryIntent");
 		Intent storyIntent = new Intent(activity, StoryActivity.class);
     	storyIntent.putExtra("android.scrum.support.StoryActivity.PROJECT", currentProject);
@@ -93,7 +93,7 @@ public class PeopleActivity extends ExpandableListActivity  implements Observer 
     	taskViewIntent.putExtra("android.scrum.support.TaskViewActivity.PERSON", person);
     	taskViewIntent.putExtra("android.scrum.support.TaskViewActivity.IS_USER", isUser);
     	activity.startActivityForResult(taskViewIntent, 1);
-    }
+    }*/
     
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {}
@@ -124,7 +124,7 @@ public class PeopleActivity extends ExpandableListActivity  implements Observer 
 	     protected void onPostExecute(Boolean result) {
 	    	 if(result != null) {
 	    		 if(result) {
-	    			 teamAdapter.addTeam(currentProject.getTeamMembers());
+	    			 teamAdapter.addTeam(currentProject);
 	    			 teamAdapter.notifyDataSetChanged();
 	    			 setProgressBarIndeterminateVisibility(false);
 	    			 Log.d("PERSON ACTIVITY", "projects size = " + currentProject.getTeamMembers().size());

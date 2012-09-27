@@ -22,6 +22,7 @@
         <activity android:name=".TeamActivity"></activity>
         <activity android:name=".ProjectActivity"></activity>
         <activity android:name=".PeopleActivity"></activity>
+        <activity android:name=".TaskSelector"></activity>
         <activity android:name=".old.StoryActivity"></activity>
         <activity android:name=".old.TaskListActivity"></activity>
         <activity android:name=".old.TaskViewActivity"></activity>

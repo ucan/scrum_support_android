@@ -326,6 +326,45 @@ public class RESTService {
 		}
 		return project;
 	}
+
+	/**
+	 * Testing needed.
+	 * 
+	 * @param token
+	 * @param id
+	 * @param id2
+	 * @return
+	 */
+	public boolean fetchStories(Token token, Iteration iteration) {
+		boolean updated = false;
+		RequestParams params = new BasicRequestParams();
+		params.add("iteration_id", "" + iteration.getId());
+		ServiceResponse response = GetHelper.get(makeUrl(Link.STORIES), port, params, EncodingTypes.UTF8, getAuthHeaders(token));
+		if (response == null) {
+			ErrorService.getInstance().raiseError(new Error(context.getString(R.string.error_connection)));
+			Log.e("REST SERVICE", "The REST Server was unavailable");
+		}
+		else if (response.getStatusCode() == HttpStatus.SC_OK) {
+			JsonElement json = new JsonParser().parse(response.getResponseString());
+			if (json.isJsonObject() && json.getAsJsonObject().has("stories")) {
+				JsonArray jStories = json.getAsJsonObject().getAsJsonArray("stories");
+				for (JsonElement jStory : jStories) {
+					Story story = gson.fromJson(jStory, Story.class);
+					if (story != null) {
+						iteration.addStory(story);
+					}
+					else {
+						Log.d("REST SERVICE", "getProjects: Error deserializing a task");
+					}
+				}
+				updated = true;
+			}
+		}
+		else {
+			// TODO: Need to check if response is 403/other ?
+		}
+		return updated;
+	}
 	
 	/**
 	 * (API: Tasks#list)
@@ -546,9 +585,7 @@ public class RESTService {
 			Status status = Status.fromString(statusStr);
 			return new Task(id, description, status);
 		}
-	}
-	
-	
+	}	
 }
 
 

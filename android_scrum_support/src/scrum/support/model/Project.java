@@ -21,7 +21,7 @@ public class Project implements Parcelable {
 	
 	public Project(int id, int currentIterationId, String title, SortedSet<Iteration> iterations, SortedSet<TeamMember> teamMembers) {
 		this.id = id;
-		this.currentIterationId = currentIterationId;
+		this.currentIterationId = 62;
 		this.title = title;
 		this.iterations = iterations;
 		this.teamMembers = teamMembers;
@@ -103,6 +103,7 @@ public class Project implements Parcelable {
 	public void writeToParcel(Parcel dest, int flags) {
 		dest.writeInt(id);
 		dest.writeString(title);
+		dest.writeInt(currentIterationId);
 		dest.writeTypedList(new ArrayList<Iteration>(iterations));
 		dest.writeTypedList(new ArrayList<TeamMember>(teamMembers));
 	}
@@ -120,6 +121,7 @@ public class Project implements Parcelable {
 	private Project(Parcel in) {
 		id = in.readInt();
 		title = in.readString();
+		currentIterationId = in.readInt();
 		iterations = new TreeSet<Iteration>(in.createTypedArrayList(Iteration.CREATOR));
 		teamMembers = new TreeSet<TeamMember>(in.createTypedArrayList(TeamMember.CREATOR));
 	}
