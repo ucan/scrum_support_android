@@ -14,6 +14,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -206,6 +207,7 @@ public class LoginActivity extends Activity implements Observer {
 	    	 pd.dismiss();
 	    	 if(result != null) {
 	    		 if(result) {
+	    			 Log.i("User Login Successful", currentUser.getEmail());
 	    			 activity.startActivity(new Intent(activity, ProjectActivity.class));
 		    	 } else {
 		    		 

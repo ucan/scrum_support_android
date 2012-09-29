@@ -2,6 +2,7 @@ package scrum.support.model;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -14,7 +15,7 @@ public class Story implements Comparable<Story>, Parcelable {
 	int id;
 	String title;
 	Status currentStatus = Status.NOT_STARTED;
-	Set<Task> tasks = new TreeSet<Task>();
+	ArrayList<Task> tasks = new ArrayList<Task>();
 	
 	public Story(int id, String title) {
 		this.id = id;
@@ -33,8 +34,8 @@ public class Story implements Comparable<Story>, Parcelable {
 		return currentStatus;
 	}
 	
-	public Set<Task> getTasks() {
-		return Collections.unmodifiableSet(tasks);
+	public List<Task> getTasks() {
+		return Collections.unmodifiableList(tasks);
 	}
 	
 	public void addTask(Task task) {
@@ -92,6 +93,6 @@ public class Story implements Comparable<Story>, Parcelable {
 		id = in.readInt();
 		title = in.readString();
 		currentStatus = Status.fromString(in.readString());
-		tasks = new TreeSet<Task>(in.createTypedArrayList(Task.CREATOR));
+		tasks = new ArrayList<Task>(in.createTypedArrayList(Task.CREATOR));
 	}
 }

@@ -1,4 +1,4 @@
-package scrum.support.old;
+/*package scrum.support.old;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,8 +24,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-public class StoryActivity extends ListActivity implements Observer {
-	
+public class StoryActivity extends ListActivity implements Observer {	
 	
 	private Activity activity;
 	private StoryAdapter storyAdapter;
@@ -40,7 +39,7 @@ public class StoryActivity extends ListActivity implements Observer {
         Bundle extras = getIntent().getExtras();
         currentProject = (Project) extras.getParcelable("android.scrum.support.StoryActivity.PROJECT");
         activity = this;
-    	storyAdapter = new StoryAdapter(this, R.layout.story_row, R.id.story_title, new ArrayList<Story>(currentProject.getCurrentIteration().getStories()));
+    	storyAdapter = new StoryAdapter(this, R.layout.story_row, R.id.story_title, new ArrayList<Story>());
     	setContentView(R.layout.relative_listview);
         setListAdapter(storyAdapter);
         //updateStories();
@@ -92,3 +91,4 @@ public class StoryActivity extends ListActivity implements Observer {
 }
 
 
+*/

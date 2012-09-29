@@ -9,6 +9,7 @@ import scrum.support.model.Project;
 import scrum.support.model.User;
 import scrum.support.services.ContentProvider;
 import scrum.support.services.ErrorService;
+import android.accounts.Account;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ListActivity;
@@ -22,11 +23,13 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-public class ProjectActivity extends ListActivity implements Observer {
+public class ProjectActivity extends Activity implements Observer {
     /** Called when the activity is first created. */
 	
 	
@@ -43,14 +46,29 @@ public class ProjectActivity extends ListActivity implements Observer {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+        setTitle("My Projects");
+        
         Log.d("PROJECT ACTIVITY", "Starting");
         activity = this;
     	ErrorService.getInstance().addObserver(this);
     	projectsAdapter = new ArrayAdapter<Project>(this, R.layout.project_row, R.id.project_title, new ArrayList<Project>());
     	projectsAdapter.setNotifyOnChange(false);
+    	
+    	User currentUser = ContentProvider.getInstance().getUser();
+    	ArrayAdapter<scrum.support.model.Account> accountAdapter = 
+    			new ArrayAdapter<scrum.support.model.Account>(this, R.layout.project_row, R.id.project_title);
+    	for(scrum.support.model.Account a : currentUser.getAccounts()) {
+    		accountAdapter.add(a);
+    	}
+    	
     	setContentView(R.layout.projects);
-        setListAdapter(projectsAdapter);
-        getListView().setEmptyView(findViewById(R.id.no_accounts_tv));
+    	
+    	ListView lvAccounts = (ListView) findViewById(R.id.accountList);
+    	lvAccounts.setAdapter(accountAdapter);
+    	ListView lvProjects = (ListView) findViewById(R.id.projectList);
+    	lvProjects.setAdapter(projectsAdapter);
+    	lvProjects.setOnItemClickListener(projectItemClickListener());
+
         updateProjects();
     }
 
@@ -73,13 +91,20 @@ public class ProjectActivity extends ListActivity implements Observer {
         }
     }
     
-    @Override
-    public void onListItemClick(ListView l, View v, int position, long id) {
-    	Log.i("PROJECT ACTIVITY", projectsAdapter.getItem(position).toString());
-    	Intent personIntent = new Intent(activity, PeopleActivity.class);
-    	Project currentProject = projectsAdapter.getItem(position);
-     	personIntent.putExtra("android.scrum.support.ProjectActivity.PROJECT", currentProject);
-    	activity.startActivityForResult(personIntent, SHOW_PEOPLE);
+    public OnItemClickListener projectItemClickListener() {
+    	return new OnItemClickListener() {
+
+			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
+					long arg3) {
+				
+    			Log.i("PROJECT ACTIVITY", projectsAdapter.getItem(arg2).toString());
+    			Intent personIntent = new Intent(activity, TeamActivity.class);
+    			Project currentProject = projectsAdapter.getItem(arg2);
+    			personIntent.putExtra("android.scrum.support.ProjectActivity.PROJECT", currentProject);
+    			activity.startActivityForResult(personIntent, SHOW_PEOPLE);
+				
+			}
+    	};
     }
 
 	/**

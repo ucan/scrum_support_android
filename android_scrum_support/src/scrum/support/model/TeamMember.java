@@ -1,5 +1,6 @@
 package scrum.support.model;
 
+import scrum.support.model.Util.Status;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -40,6 +41,7 @@ public class TeamMember implements Comparable<TeamMember>, Parcelable {
 	
 	public void setTask(Task task) {
 		this.task = task;
+		task.setStatus(Status.STARTED);
 	}
 	
 	public Task getTask() {

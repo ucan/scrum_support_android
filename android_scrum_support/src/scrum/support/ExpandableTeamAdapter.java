@@ -1,38 +1,27 @@
 package scrum.support;
 
 import java.util.ArrayList;
-import java.util.SortedSet;
-
 import scrum.support.model.TeamMember;
 import scrum.support.model.Project;
 import scrum.support.model.Task;
-import scrum.support.old.StoryActivity;
-import scrum.support.old.TaskViewActivity;
-import scrum.support.services.ContentProvider;
-import scrum.support.services.ErrorService;
-
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.Button;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-public class ExpandTeamAdapter extends BaseExpandableListAdapter {
+public class ExpandableTeamAdapter extends BaseExpandableListAdapter {
 	
 	private Activity activity;
 	private ArrayList<TeamMember> team;
 	private Project project;
 	
-	public ExpandTeamAdapter(Activity activity) {
+	public ExpandableTeamAdapter(Activity activity) {
 		this.activity = activity;
 		this.team = new ArrayList<TeamMember>();
 	}
@@ -40,11 +29,12 @@ public class ExpandTeamAdapter extends BaseExpandableListAdapter {
 	public void addTeam(Project project) {
 		this.project = project;
 		team.clear();
-		for(TeamMember person : project.getTeamMembers()) {
-			if(person.isMe()) {
-				team.add(0, person); 
+		for(TeamMember teamMate : project.getTeamMembers()) {
+			if(teamMate.isMe()) {
+				team.add(0, teamMate); 
+				project.setMe(teamMate);
 			} else { 
-				team.add(person);
+				team.add(teamMate);
 			}	
 		}
 		notifyDataSetChanged();	
@@ -73,6 +63,8 @@ public class ExpandTeamAdapter extends BaseExpandableListAdapter {
 		if(person.isMe()) {
 			if(person.hasTask()) {
 				convertView = infalInflater.inflate(R.layout.me_expanded_task, null);	
+				TextView tv = (TextView) convertView.findViewById(R.id.currentTaskLbl);
+				tv.setText(person.getTask().getDescription());
 				
 			} else {
 				convertView = infalInflater.inflate(R.layout.me_expanded_no_task, null);				
@@ -103,7 +95,6 @@ public class ExpandTeamAdapter extends BaseExpandableListAdapter {
 			public void onClick(View arg0) {
 				Intent storyIntent = new Intent(activity, TaskSelector.class);
 		    	storyIntent.putExtra("android.scrum.support.TaskSelector.PROJECT", project);
-		    	storyIntent.putExtra("android.scrum.support.TaskSelector.ME", person);
 		    	activity.startActivityForResult(storyIntent, 0);				
 			}
 		};

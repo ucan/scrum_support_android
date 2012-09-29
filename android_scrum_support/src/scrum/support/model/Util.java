@@ -27,5 +27,13 @@ public class Util {
 			}
 			return null;
 		}
+		
+		public boolean selectable() {
+			if(status == Status.DONE.toString() || status == Status.STARTED.toString()) {
+				return false;
+			} else {
+				return true;
+			}
+		}
 	}
 }

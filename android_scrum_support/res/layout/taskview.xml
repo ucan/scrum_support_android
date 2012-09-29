@@ -3,34 +3,16 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical" >
-    
-    	
-	<Button android:id="@+id/taskview_change_task"
-	    android:layout_width="match_parent"
-        android:layout_height="wrap_content" 
-        android:text="Change Task"
-        android:textSize="20sp" />
-    	<TextView android:id="@+id/taskview_description" 
+    	<TextView 
+	    android:id="@+id/task_description" 
         android:layout_width="match_parent"
         android:layout_height="wrap_content" 
-        android:text="description..."
-        android:textSize="20sp" />
-    
-	<TextView android:id="@+id/taskview_status" 
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" 
-        android:text="status..."
+        android:paddingLeft="30dp"
         android:textSize="20sp" />
 	
-	<TextView android:id="@+id/taskview_time_spent" 
+	<Button
+	    android:id="@+id/selectTask"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" 
-        android:text="time spent..."
-        android:textSize="20sp" />
-	
-	 <TextView android:id="@+id/taskview_comments" 
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" 
-        android:text="comments..."
-        android:textSize="20sp" />
+        android:text="@string/selectTask"></Button>
 </LinearLayout>

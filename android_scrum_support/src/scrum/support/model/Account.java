@@ -70,6 +70,10 @@ public class Account {
 		return null;
 	}
 	
+	public String toString() {
+		return type;
+	}
+	
 	public boolean equals(Object other) {
 		if (this == other) {
 			return true;

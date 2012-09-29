@@ -1,4 +1,4 @@
-package scrum.support.old;
+/*package scrum.support.old;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -141,3 +141,4 @@ public class TaskListActivity extends ListActivity implements Observer {
 }
 
 
+*/

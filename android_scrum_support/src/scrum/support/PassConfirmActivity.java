@@ -19,7 +19,7 @@ public class PassConfirmActivity extends Activity {
         setContentView(R.layout.pass_confirm);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_BLUR_BEHIND,
                 WindowManager.LayoutParams.FLAG_BLUR_BEHIND);
-        this.setTitle("");
+        this.setTitle("t");
         et = ((EditText) findViewById(R.id.confirmedPassword));
         
         // button

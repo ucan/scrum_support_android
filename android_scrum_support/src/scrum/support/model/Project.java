@@ -9,11 +9,13 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 public class Project implements Parcelable {
+	
 	private int id;
 	private int currentIterationId;
 	private String title;
 	private SortedSet<Iteration> iterations;
 	private SortedSet<TeamMember> teamMembers;
+	private TeamMember me;
 	
 	public Project(int id, int currentIterationId, String title) {
 		this(id, currentIterationId, title, new TreeSet<Iteration>(), new TreeSet<TeamMember>());
@@ -21,7 +23,8 @@ public class Project implements Parcelable {
 	
 	public Project(int id, int currentIterationId, String title, SortedSet<Iteration> iterations, SortedSet<TeamMember> teamMembers) {
 		this.id = id;
-		this.currentIterationId = 62;
+		this.currentIterationId = currentIterationId;
+		//this.currentIterationId = 1;
 		this.title = title;
 		this.iterations = iterations;
 		this.teamMembers = teamMembers;
@@ -95,6 +98,10 @@ public class Project implements Parcelable {
 	public String toString() {
 		return title;
 	}
+	
+	public void setMe(TeamMember me) {
+		this.me = me;
+	}
 
 	public int describeContents() {
 		return 0;
@@ -104,6 +111,8 @@ public class Project implements Parcelable {
 		dest.writeInt(id);
 		dest.writeString(title);
 		dest.writeInt(currentIterationId);
+		// TODO: Need to make me parcelable
+		//	if(me != null) dest.writeParcelable(me, flags);
 		dest.writeTypedList(new ArrayList<Iteration>(iterations));
 		dest.writeTypedList(new ArrayList<TeamMember>(teamMembers));
 	}
@@ -124,5 +133,11 @@ public class Project implements Parcelable {
 		currentIterationId = in.readInt();
 		iterations = new TreeSet<Iteration>(in.createTypedArrayList(Iteration.CREATOR));
 		teamMembers = new TreeSet<TeamMember>(in.createTypedArrayList(TeamMember.CREATOR));
+		// TODO: Need to make me parcelable
+		//me = in.readParcelable(TeamMember.class.getClassLoader());
+	}
+
+	public TeamMember getMe() {
+		return me;
 	}
 }

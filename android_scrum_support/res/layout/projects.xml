@@ -1,24 +1,70 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/projects_layout"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
+    android:background="@color/blueMightBluePickledBluewood"
     android:orientation="vertical" >
 
-    <ListView
-        android:id="@android:id/list"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
-        android:layout_weight="1"
-        android:fastScrollEnabled="true">
-    </ListView>
+	<TableLayout android:id="@+id/TableLayout01" android:layout_width="wrap_content" android:layout_height="wrap_content">  
     
-    <TextView android:id="@+id/no_accounts_tv" 
+
+
+    <TextView
+        android:id="@+id/accountTitle"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent" 
+        android:layout_height="fill_parent"
+        android:paddingLeft="5dp"
+        android:text="@string/accountTitle"
+        android:textColor="@color/organeRedPeachWheat"
+        android:textSize="20sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/no_accounts_tv"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:background="@color/blueMightBluePickledBluewood"
         android:text="@string/no_accounts_text"
+        android:textColor="@color/blueMorningGlory"
         android:textSize="20sp" />
 
-</RelativeLayout>
+    <ListView
+        android:id="@+id/accountList"
+        android:layout_width="wrap_content"
+        android:layout_height="113dp"
+        android:fastScrollEnabled="true"
+        android:paddingLeft="20dp" >
+    </ListView>
+
+
+
+
+
+    <TextView
+        android:id="@+id/projetTitle"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_marginTop="20sp"
+        android:background="@color/blueMightBluePickledBluewood"
+        android:paddingLeft="5dp"
+        android:text="@string/projectTitle"
+        android:textColor="@color/organeRedPeachWheat"
+        android:textSize="20sp"
+        android:textStyle="bold" />
+
+
+
+    <ListView
+        android:id="@+id/projectList"
+        android:layout_width="wrap_content"
+        android:layout_height="329dp"
+        android:fastScrollEnabled="true"
+        android:paddingLeft="20dp" >
+
+    </ListView>
+    
+    
+	</TableLayout>  
+
+</LinearLayout>

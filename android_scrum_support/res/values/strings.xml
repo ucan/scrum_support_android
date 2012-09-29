@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">Your Scrum Support</string>
+    <string name="app_name">Scrum Support</string>
     <string name="emailText">email</string>
     <string name="passwordText">password</string>
     <string name="loginText">Login</string>
@@ -17,9 +17,11 @@
 
     <string name="msg_auth">Attempting to Authenticate</string>
     
+    <string name="server_update">Update Server</string>
+    
     
     <!-- Add Account -->
-    <string name="addPtAccount">  Pivotal Tracker Account:</string>
+    <string name="addPtAccount">Pivotal Tracker Account</string>
     <string name="accountHint"></string>
     <string name="passwordHint">password</string>
     <string name="usernameHint">username</string>
@@ -36,18 +38,31 @@
 	
 	<!-- ProjectActivity -->
 	<string name="add_account">Add Account</string>
-	<string name="no_accounts_text">Select Add Account from the menu to link a new account</string>
+	<string name="accountTitle">Accounts</string>
+	<string name="no_accounts_text">Add a new Account from the menu</string>
+	<string name="projectTitle">Projects</string>
 		
-	<!-- PersonActivity -->
+	<!-- TeamActivity -->
 	<string name="noTask">No Current Task</string>
-	<string name="meNoTask">You do not have a current task selected.</string>
-	<string name="selectTaskButton">Select a Task</string>
+	<string name="meNoTask">No current task selected.</string>
+	<string name="selectTaskButton">Select a New Task</string>
 	<string name="currentTaskLbl">Current Task: </string>
+	
+	<!--  TaskSelectorActivity -->
+	<string name="selectTask">Select Task</string>
 	
 	<!-- Colors -->
 	<color name="Black">#000000</color>
+	<color name="White">#FFFFFF</color>
 	<color name="ExpandTaskBackground">#FFAFABAB</color>
 	<color name="ExpandPersonBackground">#FF7C7C7C</color>
+	
+	<color name="blueElephantMidnightBlue">#153450</color>
+	<color name="blueMightBluePickledBluewood">#294052</color>
+	<color name="blueWedgewood">#447294</color>
+	<color name="blueMorningGlory">#8FBCDB</color>
+	<color name="organeRedPeachWheat">#F4D6BC</color>
+	<color name="givryOrange">#F8E4CC</color>
 </resources>
 
 

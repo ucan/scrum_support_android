@@ -337,6 +337,7 @@ public class RESTService {
 	 */
 	public boolean fetchStories(Token token, Iteration iteration) {
 		boolean updated = false;
+		boolean storiesFound = false;
 		RequestParams params = new BasicRequestParams();
 		params.add("iteration_id", "" + iteration.getId());
 		ServiceResponse response = GetHelper.get(makeUrl(Link.STORIES), port, params, EncodingTypes.UTF8, getAuthHeaders(token));
@@ -349,6 +350,7 @@ public class RESTService {
 			if (json.isJsonObject() && json.getAsJsonObject().has("stories")) {
 				JsonArray jStories = json.getAsJsonObject().getAsJsonArray("stories");
 				for (JsonElement jStory : jStories) {
+					storiesFound = true;
 					Story story = gson.fromJson(jStory, Story.class);
 					if (story != null) {
 						iteration.addStory(story);
@@ -363,6 +365,15 @@ public class RESTService {
 		else {
 			// TODO: Need to check if response is 403/other ?
 		}
+		// TODO: Temp fix for testing stories, as there were none being pulled off the REST server.
+		/*if(!storiesFound) {
+			// TODO: Remove when fixed
+			Story tempStory = new Story(1, "test story to see if I work");
+			tempStory.addTask(new Task(1, "First test task"));
+			tempStory.addTask(new Task(2, "Second test task"));
+			tempStory.addTask(new Task(3, "Third test task"));
+			iteration.addStory(tempStory);
+		}*/
 		return updated;
 	}
 	

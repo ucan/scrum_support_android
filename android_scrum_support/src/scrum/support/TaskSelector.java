@@ -18,6 +18,7 @@ import scrum.support.services.ContentProvider;
 import scrum.support.services.ErrorService;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ExpandableListActivity;
 import android.app.ListActivity;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -32,37 +33,38 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-public class TaskSelector extends ListActivity implements Observer {	
+public class TaskSelector extends ExpandableListActivity implements Observer {	
 	
 	private Activity activity;
-	private StoryAdapter storyAdapter;
 	private Project currentProject;
-	private TeamMember me;
 	private StoryQuery storyQuery;
+	private ExpandableStoriesAdapter storyAdapter;
 	
 	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         Log.d("TASK SELECTOR ACTIVITY", "Starting");
-
+    	setContentView(R.layout.stories);
+    	
         Bundle extras = getIntent().getExtras();
         currentProject = (Project) extras.getParcelable("android.scrum.support.TaskSelector.PROJECT");
-        me = (TeamMember) extras.getParcelable("android.scrum.support.TaskSelector.ME");
         activity = this;
-    	storyAdapter = new StoryAdapter(this, R.layout.story_row, R.id.story_title, new ArrayList<Story>());
-    	setContentView(R.layout.relative_listview);
+        
+    	//storyAdapter = new StoryAdapter(this, R.layout.story_row, R.id.story_title, new ArrayList<Story>());
+        setTitle("Tasks Available for " + currentProject.getTitle());
+        storyAdapter = new ExpandableStoriesAdapter(this, currentProject);
         setListAdapter(storyAdapter);
         updateIteration();
     }
 	
-	@Override
-    public void onListItemClick(ListView l, View v, int position, long id) {
+//	@Override
+  //  public void onListItemClick(ListView l, View v, int position, long id) {
 	//	Intent taskListIntent = new Intent(activity, TaskListActivity.class);
 	//	Story story = storyAdapter.getItem(position);
 	//	taskListIntent.putExtra("android.scrum.support.TaskListActivity.STORY", story);
     //	activity.startActivityForResult(taskListIntent, 0);
-	}
+	//}
 	
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {}
@@ -70,7 +72,7 @@ public class TaskSelector extends ListActivity implements Observer {
 	
 	public void update(Observable observable, Object data) {}
 	
-
+/*
 	private class StoryAdapter extends ArrayAdapter<Story> {
 		
 		public StoryAdapter(Context context, int resource,	int textViewResourceId, List<Story> stories) {
@@ -100,7 +102,7 @@ public class TaskSelector extends ListActivity implements Observer {
 			}
 		}		
 	}
-	
+	*/
 	public void updateIteration() {
 		storyQuery = new StoryQuery();
 		storyQuery.execute();
@@ -123,10 +125,10 @@ public class TaskSelector extends ListActivity implements Observer {
 	     protected void onPostExecute(Boolean result) {
 	    	if(result != null) {
 	    		if(result) {
-	    			storyAdapter.clear();
-	    			storyAdapter.addAll(currentProject.getCurrentIteration().getStories());
+	    			storyAdapter.setIteration(currentProject.getCurrentIteration());
 	    			storyAdapter.notifyDataSetChanged();
 	    			setProgressBarIndeterminateVisibility(false);
+	    			 Log.d("ITERATION ACTIVITY", "stories = " + storyAdapter.getGroupCount());
 		    	 }
 	    	 } 
 	    	else {

@@ -2,22 +2,24 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/ExpandTaskBackground"
     android:orientation="vertical" >
         
     <TextView
         android:id="@+id/meNoTaskText"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:textSize="17dip"
+        android:gravity="center"
+        android:text="@string/meNoTask"
         android:textColor="#FFFFFF"
-        android:paddingLeft="20dp"
-        android:text="@string/meNoTask"/>    
+        android:textSize="17dip" />
         
-    <Button 
+    <Button
         android:id="@+id/selectTaskButton"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:paddingLeft="40dp"
-        android:text="@string/selectTaskButton"/>
+        android:layout_marginLeft="40px"
+        android:layout_marginRight="40px"
+        android:text="@string/selectTaskButton" />
 
 </LinearLayout>

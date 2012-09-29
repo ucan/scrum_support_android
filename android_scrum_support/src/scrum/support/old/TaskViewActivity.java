@@ -1,4 +1,4 @@
-package scrum.support.old;
+/*package scrum.support.old;
 
 import java.util.Observable;
 import java.util.Observer;
@@ -90,3 +90,4 @@ public class TaskViewActivity extends Activity implements Observer {
 
 
 
+*/
